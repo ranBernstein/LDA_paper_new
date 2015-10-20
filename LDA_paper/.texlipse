@@ -1,0 +1,14 @@
+#TeXlipse project settings
+#Mon Jul 20 22:17:17 IDT 2015
+markTmpDer=true
+builderNum=2
+outputDir=
+makeIndSty=
+bibrefDir=
+outputFormat=pdf
+tempDir=tmp
+mainTexFile=document.tex
+outputFile=LDA.pdf
+langSpell=en
+markDer=true
+srcDir=

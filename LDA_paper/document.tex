@@ -20,10 +20,11 @@
 \usepackage{amsmath}
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
+\usepackage{amsthm}
 
-\newtheorem{theorem}{Theorem}[section]
-\newtheorem{corollary}{Corollary}[theorem]
-\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
 
 \begin{document}
 
@@ -43,9 +44,9 @@ more commonly, for dimensionality reduction before later classification.
 \\\par FLD approaches the problem by assuming that the conditional probability density functions $P(\vec x|y=p)$ and $P(\vec x|y=q)$ are both normally distributed with mean and covariance parameters $\left(\vec \mu_p, B_p\right)$ and $\left(\vec \mu_q, B_q\right)$, for two target classes p and q respectively.
 %\\$w \propto (S_p+S_q)^{-1}(\mu_p - \mu_q)$
 \\Under this assumption, the Bayes optimal decision criterion is a threshold on the dot product
-\begin{equation} \label{eq:decision}
+\begin{equation*} \label{eq:decision}
 w \cdot x > c
-\end{equation}
+\end{equation*}
 for some threshold constant c, where
 \begin{equation} \label{eq:w}
 w \propto (B_p+B_q)^{-1}(\mu_p - \mu_q)
@@ -90,127 +91,150 @@ $k$ - number of nodes
 \\$N_p^i$  - total number of observations from class P, in the i'th node
 \\$N_q^i$  - total number of observations from class Q, in the i'th node
 \\
-\\$p,q,p^i,q$ and $q^i$  are the global and local mean of the classes,
+\\$p,q,p^i$ and $q^i$  are the global and local mean of the classes,
 i.e.:
 \\$p^i := \frac{1}{N_p^i}\sum_{j=1}^{n}\mathbbm{1}{(y^i_j=P)}x^i_j
 \\q^i := \frac{1}{N_q^i}\sum_{j=1}^{n}\mathbbm{1}{(y^i_j=Q)}x^i_j
 \\p := \frac{1}{N_p}
-\sum_{i=1}^k\sum_{j=1}^n\mathbbm{1}{(y^i_j=p)}x^i_j=\frac{1}{k}\sum_{i=1}^kp^i 
-\\q:=\frac{1}{N_q} \sum_{i=1}^k\sum_{j=1}^n\mathbbm{1}{(y^i_j=q)}x^i_j =
+\sum_{i=1}^k\sum_{j=1}^n\mathbbm{1}{(y^i_j=P)}x^i_j=\frac{1}{k}\sum_{i=1}^kp^i 
+\\q:=\frac{1}{N_q} \sum_{i=1}^k\sum_{j=1}^n\mathbbm{1}{(y^i_j=Q)}x^i_j =
 \frac{1}{k}\sum_{i=1}^kq^i$
 \\
 \\$S$ and $S^i$  are the global and local normalized scatter matrices:
 \\$S^i := \frac{1}{n}\sum_{j=1}^{n}x^i_j(x^i_j)^T
 \\S := \frac{1}{nk}
 \sum_{i=1}^k\sum_{j=1}^nx^i_j(x^i_j)^T=\frac{1}{k}\sum_{i=1}^kS^i$
-\\Simillarly, $B$ and $B^i$ are the covariance matrices:
-\\$B:=S - pp^T - qq^T
-\\B^i:=S^i - p^i(p^i)^T - q^i(q^i)^T$
-\\and $u$ and $u^i$ are the distance between the classes centroids
+\\Simillarly, $u$ and $u^i$ are the distance between the classes centroids
 \\$u:=p - q$
 \\$u^i:=p^i - qi$
-\\\\Let w be our current true model. If we observe w as function as shown in equation~\ref{eq:w}, we can denote:
+\\ $B$ is the global covariance matrix:
+\\$B:=S - pp^T - qq^T$
+%\\B^i:=S^i - p^i(p^i)^T - q^i(q^i)^T$
+\\\\Let w be our current true model, following Eq.~\ref{eq:w}, we can denote:
 %\\$w(S,\mu_p,\mu_q) := (S - \mu_p\mu_p^T - \mu_q\mu_q^T)^{-1}(\mu_p - \mu_q)$
-\begin{equation}
+\begin{equation*}
 w:=(S - pp^T - qq^T)^{-1}(p-q)=B^{-1}u
-\end{equation}
-Let $w_0$ be the existing model, previously computed from $S_0, p_0$ 
-and $q_0$ at some point in the past (the synchronization time), then
-\begin{equation} 
-w_0:=(S_0 - p_0p_0^T - q_0q_0^T)^{-1}(p_0-q_0)
-\end{equation}
-\\and if $\Delta_s, \delta_p$, and $\delta_q$ are the drift vectors of $S, p$, and $q$, i.e.:
+\end{equation*}
+Let $w_0$ be the existing model, previously computed from $S_0, p_0$ and $q_0$
+or from $B_0$ and $u_0$ at some point in the past (the synchronization time),
+then
+\begin{equation*} 
+w_0:=(S_0 - p_0p_0^T - q_0q_0^T)^{-1}(p_0-q_0)=B_0^{-1}u_0
+\end{equation*}
+$\Delta_s, \delta_p$, and $\delta_q$ are the drift vectors of $S, p$, and $q$, i.e.:
 $
 \\\Delta_s:= S - S_0
 \\\delta_p:= p - p_0
 \\\delta_q := q - q_0$
-\\If $S_0$, $p_0^i$ and $q_0^i$ are the local normalized scatter and averages of
-the samples in a node, we can define the local drift to be:
+\\If $S_0^i$, $p_0^i$ and $q_0^i$ are the local normalized scatter and averages
+of the samples in a node, we can define the local drift to be:
 $
-\\\Delta_s:= S^i - S_0^i
+\\\Delta_s^i:= S^i - S_0^i
 \\\delta_p^i:= p^i - p_0^i
 \\\delta_q^i:= q^i - q_0^i
 $
-\\It easy to notice that every global drift is the average of the local drifts.
-i.e.:
+\begin{remark} \label{average}
+It easy to notice that every global drift is the average of the local drifts:
+\begin{equation*}
+\Delta_s = \frac{1}{k} \sum \Delta_s^i, \\
+\delta_p = \frac{1}{k} \sum \delta_p^i, \\
+\delta_q = \frac{1}{k} \sum \delta_q^i 
+\end{equation*}
+\end{remark}
 
-\begin{flalign}
-w &=[S_0+\Delta_S - (p_0+\delta_p)(p_0+\delta_p)^T - &&\\\nonumber
-&(q_0+\delta_q)(q_0+\delta_q)^T]^{-1}(p_0+\delta_p-q_0-\delta_q)&&
-\end{flalign}
-%\end{split}
-%\end{equation} 
-\\For simplicity we will denote
-\\$B_0:=S_0 - p_0p_0^T - q_0q_0^T$
-
-\begin{flalign}
-\Delta &:=\Delta_S - \delta_p\delta_p^T - \delta_q\delta_q^T &&\\ \notag
-&- p_0\delta_p^T - \delta_p p_0^T - q_0\delta_q^T - \delta_qq_0^T&& \notag
-\end{flalign}
-\\$u_0:=p_0-q_0 \\\delta:=\delta_p-\delta_q
-\\w_0=B_0^{-1}u_0
-\\w=(B_0+\Delta)^{-1}(  u_0+\delta)$
-\\
-\\We break $\Delta$ into its quadratic 
-\\$Q:=\delta_p\delta_p^T + \delta_q\delta_q^T
-\\L:= \Delta_S - p_0\delta_p^T - \delta_pp_0^T - q_0\delta_q^T - \delta_qq_0^T
-\\\Delta= L+ Q$
 \subsection{Convex Safe Zones}
 We propose to solve the monitoring problem by means of
-“good” convex subsets, called safe zones, of the data space.
+``good'' convex subsets, called safe zones, of the data space.
 Each node monitors its own drift: as long as current values
-at local nodes $(B^i,u^i)$ are sufficiently similar to their values
-at sync time $(B^i_0,u^i_0))$, $w_0$ is guaranteed to be close to $w$.
+at local nodes $(S^i,p^i,q^i)$ are sufficiently similar to their values
+at sync time $(S^i_0,p^i_0,q^i_0))$, $w_0$ is guaranteed to be close to $w$.
 Formally, we define a convex subset $\mathcal{C}$ such that:
 \begin{equation} \label{convex}
 (\Delta_s, \delta_p, \delta_q) \in \mathcal{C} \Rightarrow \parallel w-w_0
 \parallel \ < R_0
 \end{equation}
 \begin{lemma}
-Let $\mathcal{C}$ be a convex subset that satisfie Eq. \ref{convex}.
+Let $\mathcal{C}$ be a convex subset that satisfies Eq. \ref{convex}.
 If $(\Delta_s^i, \delta_p^i, \delta_q^i) \in \mathcal{C}$ for all i, then
-$\parallel w-w_0 \parallel \ < R_0$
+\begin{equation*}
+\parallel w-w_0 \parallel \ < R_0
+\end{equation*}
 \end{lemma}
+\begin{proof}
+Express $S, p$ and $q$ as their values at synchronization with the addition of the
+average of the local drifts:
+\begin{equation*} 
+\begin{split}
+(S,p,q) & = \frac{1}{k} \sum_i (S^i,p^i,p^j) \\
+ & = (S_0,p_0,q_0) + \frac{1}{k} \sum_i (\Delta_s^i,\delta^i_p,\delta_q^i) \\
+\end{split}
+\end{equation*}
+From $\mathcal{C}$'s convexity and using Remark \ref{average} we get:
+\begin{equation*} 
+\begin{split}
+\forall i (\Delta_s^i,\delta^i_p,\delta_q^i) \in \mathcal{C} & \Rightarrow 
+\frac{1}{k} \sum_i (\Delta_s^i,\delta^i_p,\delta_q^i) \in \mathcal{C} \\
+& \Rightarrow (\Delta_s,\delta_p,\delta_q) \in \mathcal{C}
+\end{split}
+\end{equation*}
+Finally, from the definition of $\mathcal{C}$ we obtain:
+\begin{equation*}
+(\Delta_s,\delta_p,\delta_q) \in \mathcal{C} \Rightarrow \parallel w-w_0
+\parallel \ < R_0
+\end{equation*}
+which completes the proof.
+\end{proof}
 
-Using the notation stated above, we can write the sphere condition in terms of $B_0, \Delta, u_0$ and $\delta$:
-\\$\parallel w-w_0 \parallel \ = \ \parallel (B_0+\Delta)^{-1}(u_0+\delta) -  B_0^{-1}u_0\parallel$
-\\
-\\From Triangle Inequality we get:
-\\$\parallel (B_0+\Delta)^{-1}(u_0+\delta) -  B_0^{-1}u_0\parallel \\ \leq \
-\parallel (B_0+\Delta)^{-1}\delta\parallel +  \parallel ((B_0+\Delta)^{-1} - B_0^{-1})u_0\parallel
-\\
-\\E_1:= \ \parallel (B_0+\Delta)^{-1}\delta\parallel
-\\E_2:= \ \parallel ((B_0+\Delta)^{-1} - B_0^{-1})u_0 \parallel$
-\\\\If we assume that $\parallel B_0^{-1}\Delta \parallel \ \leq \ 1$, then from the lemma that is proven in appendix A of "Monitoring Least Squares Models of Distributed Streams" we get:
-\\$E_1 \leq \frac{\parallel B_0^{-1}\delta\parallel}{1-\parallel B_0^{-1}\Delta \parallel}
-\\\\E_2 \leq  \frac{\parallel B_0^{-1}\Delta w_0\parallel}{1-\parallel
-B_0^{-1}\Delta \parallel}
-\\
-\\\parallel w-w_0 \parallel \ \leq \ E_1+E_2 \leq \frac{\parallel B_0^{-1}\delta \parallel + \parallel B_0^{-1}\Delta w_0 \parallel}{1 - \parallel B_0^{-1}\Delta \parallel} \ \leq \ R_0  \Rightarrow 
-\\\parallel B_0^{-1}\delta \parallel + \parallel B_0^{-1}\Delta w_0 \parallel + R_0 \parallel B_0^{-1}\Delta \parallel \ \leq \ R_0 $
-\\\\From Cauchy–Schwarz inequality we get:
-\\$\parallel B_0^{-1}\Delta w_0\parallel \ \leq \ \parallel B_0^{-1}\Delta
-\parallel \parallel w_0\parallel$ 
-\\and from Triangle Inequality we get:
-\\$\parallel B_0^{-1}\Delta\parallel \ \leq \ \parallel B_0^{-1}L\parallel
-+\parallel  B_0^{-1}Q\parallel$
-
-\\\\At last  we can derive the new convex condition:
-\begin{flalign}
-&\parallel B_0^{-1}\delta \parallel + (\parallel w_0\parallel +
-R_0)( \parallel B_0^{-1}L\parallel &&\\\nonumber & +\parallel 
-B_0^{-1}Q\parallel) \leq  R_0 &&
-\end{flalign}
-%\begin{equation}
-%\parallel B_0^{-1}\delta \parallel + &&\\\nonumber (\parallel w_0\parallel +
-%R_0)( \parallel B_0^{-1}L\parallel +\parallel  B_0^{-1}Q\parallel)  \leq  R_0
-%\end{equation}
-
-
-
-
-\subsection{Norm Constraint and the Sliding Window}
-
+\subsection{Sliding Window Convex Bound}
+In the sliding window model each node computes $S^i$ from the $L$ samples seen
+at node $i$, while $S_0^i$ (and hence $S_0$) is built from the last L samples before
+sync. 
+We denote the drift in the global covariance matrix
+\begin{equation*}
+\begin{split}
+\Delta & :=B-B_0 \\
+& = (S_0+\Delta_S - (p_0+\delta_p)(p_0+\delta_p)^T -
+(q_0+\delta_q)(q_0+\delta_q)^T) \\
+& \ - (S_0 - p_0p_0^T - q_0q_0^T) \\
+& = \delta_p\delta_p^T + \delta_q\delta_q^T + \Delta_S - p_0\delta_p^T -
+\delta_pp_0^T - q_0\delta_q^T - \delta_qq_0^T
+\end{split}
+\end{equation*}
+we break $\Delta$ into its quadratic part
+\begin{equation*}
+Q:=\delta_p\delta_p^T + \delta_q\delta_q^T, 
+\end{equation*}
+and linear part
+\begin{equation*}
+L:= \Delta_S - p_0\delta_p^T - \delta_pp_0^T - q_0\delta_q^T - \delta_qq_0^T, 
+\end{equation*}
+and hence 
+\begin{equation*}
+\Delta= L+ Q.
+\end{equation*}
+We denote the drift of the distance between the centroids:
+\begin{equation*}
+\delta:= u-u_0 = \delta_p - \delta_q
+\end{equation*}
+Now we can state a convex bound for our problem is:
+\begin{lemma} \label{convexBound}
+If $\mathcal{G}$ is the set of triplets $(\Delta_s^i, \delta_p^i, \delta_q^i)$
+ that satisfies the bound:
+ \begin{equation*} 
+\begin{split}
+||B_0^{-1}\delta|| &+ (||w_0||+R_0)(||B_0^{-1}L||+||B_0^{-1}Q||) \\ & \leq  R_0
+\end{split}
+\end{equation*}
+and satisfies the inequality:
+ \begin{equation*} 
+||B_0^{-1}\Delta|| < 1
+\end{equation*}
+ then $\mathcal{G}
+ \subseteq \mathcal{C}$ and $\mathcal{G}$ is convex.
+Where $||A||$ is the operator norm of the matrix A.
+\end{lemma}
+The proof of the lemma \ref{convexBound} quite technical, and
+the details are available in Appendix A.
 \section{EVALUATION}
 \subsection{Synthetic Datasets}
 
@@ -262,4 +286,138 @@ Is seen in Fig \ref{Noise}.
 	generates the data}
 	\label{Noise}
 	\end{figure}
+
+\clearpage
+\appendix
+\section{Appendix} \label{AppendixA}
+To find a convex subset C satisfying the condition of Eq. \ref{convex}. 
+First we define operator norm:
+\begin{definition}
+Let $A$ be a matrix. Its operator norm, or
+spectral norm, hereafter just norm, is defined as:
+\begin{equation*}
+||A|| = \sup_{x \neq 0}\frac{||Ax||}{||x||} 
+\end{equation*}
+\end{definition}
+
+\begin{lemma} \label{lemma:newman}
+If A is square and $||A|| < 1$, then
+\begin{equation*}
+||(I+A)^{-1}|| < \frac{1}{1-||A||}
+\end{equation*}
+\end{lemma}
+The proof for this lemma can be found in Gabel's paper
+\cite{gabel2015monitoring}.
+
+\subsection{Convex Bound Proof}
+We start with proving $\mathcal{G} \subseteq \mathcal{C}$:
+\begin{proof}
+We can write the sphere condition in terms of $B_0, \Delta, u_0$ and $\delta$ using the triangle
+inequality:
+\begin{equation} \label{in}
+\begin{split}
+||w-w_0|| & = \ ||(B_0+\Delta)^{-1}(u_0+\delta) - B_0^{-1}u_0|| \\
+& < ||(B_0+\Delta)^{-1}\delta|| \\
+& \ \ + ||((B_0+\Delta)^{-1} - B_0^{-1})u_0||
+\end{split}
+\end{equation}
+
+We split the last addition into two parts:
+\begin{equation}  \label{e1e2}
+\begin{split}
+& E_1:= ||(B_0+\Delta)^{-1}\delta|| \\
+& E_2:= ||((B_0+\Delta)^{-1} - B_0^{-1})u_0||
+\end{split}
+\end{equation}
+If we assume that $||B_0^{-1}\Delta||\ \leq \ 1$, 
+then from the lemma \ref{lemma:newman} we get:
+\begin{equation} \label{e1e2In}
+\begin{split}
+& E_1 \leq \frac{||B_0^{-1}\delta||}{1-||B_0^{-1}\Delta||} \\
+& E_2 \leq  \frac{|| B_0^{-1}\Delta w_0||}{1-||B_0^{-1}\Delta||}
+\end{split}
+\end{equation}
+From Cauchy-Schwarz inequality we get:
+\begin{equation} \label{CS}
+||B_0^{-1}\Delta w_0|| \ \leq \ ||B_0^{-1}\Delta||||w_0||
+\end{equation}
+Substitute Eq. \ref{e1e2}, \ref{e1e2In} and \ref{CS} in Eq. \ref{in}, and we
+get:
+\begin{equation}
+\begin{split}
+|| w-w_0 \parallel & \leq \ E_1+E_2 \\
+& \leq \frac{||B_0^{-1}\delta|| + ||B_0^{-1}\Delta||||w_0||}{1 -||B_0^{-1}\Delta||} \\
+& \leq R_0
+\end{split}
+\end{equation}
+Loosing the denominator:
+\begin{equation} \label{lostDenom}
+||B_0^{-1}\delta|| + ||B_0^{-1}\Delta||||w_0||
+\leq R_0(1 -||B_0^{-1}\Delta||)
+\end{equation}
+From the triangle inequality we can rewrite:
+\begin{equation} \label{linQuad}
+||B_0^{-1}\Delta|| = ||B_0^{-1}L||+||B_0^{-1}Q||
+\end{equation}
+And finally, from combining inequalities \ref{lostDenom} and \ref{linQuad},
+we get the bound:
+\begin{equation} \label{convexBound}
+\begin{split}
+||B_0^{-1}\delta|| &+ (||w_0||+R_0)(||B_0^{-1}L||+||B_0^{-1}Q||) \\ & \leq  R_0
+\end{split}
+\end{equation}
+\end{proof}
+
+Now we will prove that $\mathcal{G}$ is convex:
+\begin{proof}
+As a beginning we will prove that $||B_0^{-1}\delta||$ is convex in $\delta$.
+By convexity definition, for a scalar $0 \leq \alpha \leq 1$: 
+\begin{equation} 
+\begin{split}
+& ||B_0^{-1}(\alpha\delta_1+(1-\alpha)\delta_2)|| \\
+= & ||\alpha B_0^{-1}\delta_1+(1-\alpha)B_0^{-1}\delta_2)|| \\
+\leq & \alpha||B_0^{-1}\delta_1||+(1-\alpha)||B_0^{-1}\delta_2||
+\end{split}
+\end{equation}
+Where the last inequality comes from the triangle inequality.
+\\
+We continue by showing that $||B_0^{-1}L||$ is convex in $\Delta_s, \delta_p$
+and $\delta_q$. 
+We recall that:
+\begin{equation*} 
+L:= \Delta_S - p_0\delta_p^T - \delta_pp_0^T - q_0\delta_q^T - \delta_qq_0^T
+\end{equation*}
+Again, we show it from the definition of $L$ and convexity:
+\begin{equation*} 
+\begin{split}
+& ||\alpha\Delta_{s1}+(1-\alpha)\Delta_{s2} -
+p_0(\alpha\delta_{p1}+(1-\alpha)\delta_{p2})^T - \\
+& (\alpha\delta_{p1}+(1-\alpha)\delta_{p2})p_0^T -
+q_0(\alpha\delta_{q1}+(1-\alpha)\delta_{q2})^T \\
+& - (\alpha\delta_{q1}+(1-\alpha)\delta_{q2})q_0^T || \\
+= & ||\alpha(\Delta_{s1} - p_0\delta_{p1}^T - \delta_{p1}p_0^T -
+q_0\delta_{q1}^T - \delta_{q1}q_0^T) \\
+& + (1-\alpha)\Delta_{s2} - p_0\delta_{p2}^T - \delta_{p2}p_0^T -
+q_0\delta_{q2}^T - \delta_{q2}q_0^T)|| \\
+\leq & \alpha||\Delta_{s1} - p_0\delta_{p1}^T - \delta_{p1}p_0^T -
+q_0\delta_{q1}^T - \delta_{q1}q_0^T|| \\
+& + (1-\alpha)||\Delta_{s2} - p_0\delta_{p2}^T - \delta_{p2}p_0^T -
+q_0\delta_{q2}^T - \delta_{q2}q_0^T||
+\end{split}
+\end{equation*}
+The last part is proving that $||B_0^{-1}Q||$ is convex in $\delta_p$
+and $\delta_q$. We recall that:
+\begin{equation*} 
+Q:=\delta_p\delta_p^T + \delta_q\delta_q^T
+\end{equation*}
+\begin{equation*} 
+\begin{split}
+|| & B_0^{-1}[(\alpha\delta_{p1}+(1-\alpha)\delta_{p2})(\alpha\delta_{p1}+(1-\alpha)\delta_{p2})^T 
+& + (\alpha\delta_{q1}+(1-\alpha)\delta_{q2})(\alpha\delta_{q1}+(1-\alpha)\delta_{q2})^T]||
+\end{split}
+\end{equation*}
+\end{proof}
+\bibliographystyle{unsrt}
+\bibliography{references}
+
 \end{document}

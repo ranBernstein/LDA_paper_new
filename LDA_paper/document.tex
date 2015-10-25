@@ -1,32 +1,49 @@
 %%This is a very basic article template.
 %%There is just one section and two subsections.
 \documentclass[11pt,twocolumn,varwidth=true,a4paper,fleqn]{article}
-\usepackage{fullpage}
-\usepackage{url}
-\usepackage[margin=1.1in]{geometry}
+% \usepackage{fullpage}
+% \usepackage{url}
+% \usepackage[margin=1.1in]{geometry}
+% \usepackage{graphicx}
+% \usepackage{csvsimple}
+% \usepackage{varwidth}
+% \usepackage{array}
+% \usepackage{float}
+% \usepackage{amsmath}
+% \usepackage{pgfplotstable}
+% \usepackage[T1]{fontenc}
+% \usepackage[compact]{titlesec}
+% \usepackage{authblk}
+% \usepackage[utf8]{inputenc}
+% \usepackage{bbm}
+% \usepackage{amsmath}
+% \usepackage[utf8]{inputenc}
+% \usepackage[english]{babel}
+% \usepackage{amsthm}
+% \usepackage{amsmath}
+% \usepackage[utf8]{inputenc}
+% \usepackage[english]{babel}
+% \usepackage[nottoc]{tocbibind}
+% %\usepackage[style=authoryear,backend=biber]{biblatex}
+% \usepackage[backend=bibtex]{biblatex}
+% \usepackage{biblatex}
+
 \usepackage{graphicx}
 \usepackage{csvsimple}
-\usepackage{varwidth}
 \usepackage{array}
 \usepackage{float}
 \usepackage{amsmath}
 \usepackage{pgfplotstable}
-\usepackage{amsmath }
-\usepackage[T1]{fontenc}
-\usepackage[compact]{titlesec}
-\usepackage{authblk}
-\usepackage[utf8]{inputenc}
-\usepackage{bbm}
-\usepackage{amsmath}
-\usepackage[utf8]{inputenc}
-\usepackage[english]{babel}
-\usepackage{amsthm}
+
+
 
 \newtheorem{lemma}{Lemma}
 \newtheorem{definition}{Definition}
 \newtheorem{remark}{Remark}
-
+\newtheorem{corollary}{Corollary}
+ 
 \begin{document}
+\nocite{*}
 
 \title{Linear Discriminant Analysis Models of Distributed Streams}
 \date{}
@@ -202,7 +219,7 @@ We denote the drift in the global covariance matrix
 \end{equation*}
 we break $\Delta$ into its quadratic part
 \begin{equation*}
-Q:=\delta_p\delta_p^T + \delta_q\delta_q^T, 
+M:=\delta_p\delta_p^T + \delta_q\delta_q^T, 
 \end{equation*}
 and linear part
 \begin{equation*}
@@ -210,7 +227,7 @@ L:= \Delta_S - p_0\delta_p^T - \delta_pp_0^T - q_0\delta_q^T - \delta_qq_0^T,
 \end{equation*}
 and hence 
 \begin{equation*}
-\Delta= L+ Q.
+\Delta= L+ M.
 \end{equation*}
 We denote the drift of the distance between the centroids:
 \begin{equation*}
@@ -222,7 +239,7 @@ If $\mathcal{G}$ is the set of triplets $(\Delta_s^i, \delta_p^i, \delta_q^i)$
  that satisfies the bound:
  \begin{equation*} 
 \begin{split}
-||B_0^{-1}\delta|| &+ (||w_0||+R_0)(||B_0^{-1}L||+||B_0^{-1}Q||) \\ & \leq  R_0
+||B_0^{-1}\delta|| &+ (||w_0||+R_0)(||B_0^{-1}L||+||B_0^{-1}M||) \\ & \leq  R_0
 \end{split}
 \end{equation*}
 and satisfies the inequality:
@@ -287,6 +304,11 @@ Is seen in Fig \ref{Noise}.
 	\label{Noise}
 	\end{figure}
 
+
+\bibliographystyle{unsrt}
+\bibliography{bib}
+
+
 \clearpage
 \appendix
 \section{Appendix} \label{AppendixA}
@@ -310,7 +332,10 @@ The proof for this lemma can be found in Gabel's paper
 \cite{gabel2015monitoring}.
 
 \subsection{Convex Bound Proof}
-We start with proving $\mathcal{G} \subseteq \mathcal{C}$:
+\begin{lemma}
+$\mathcal{G} \subseteq \mathcal{C}$:
+\end{lemma}
+
 \begin{proof}
 We can write the sphere condition in terms of $B_0, \Delta, u_0$ and $\delta$ using the triangle
 inequality:
@@ -357,20 +382,21 @@ Loosing the denominator:
 \end{equation}
 From the triangle inequality we can rewrite:
 \begin{equation} \label{linQuad}
-||B_0^{-1}\Delta|| = ||B_0^{-1}L||+||B_0^{-1}Q||
+||B_0^{-1}\Delta|| = ||B_0^{-1}L||+||B_0^{-1}M||
 \end{equation}
 And finally, from combining inequalities \ref{lostDenom} and \ref{linQuad},
 we get the bound:
 \begin{equation} \label{convexBound}
 \begin{split}
-||B_0^{-1}\delta|| &+ (||w_0||+R_0)(||B_0^{-1}L||+||B_0^{-1}Q||) \\ & \leq  R_0
+||B_0^{-1}\delta|| &+ (||w_0||+R_0)(||B_0^{-1}L||+||B_0^{-1}M||) \\ & \leq  R_0
 \end{split}
 \end{equation}
 \end{proof}
 
-Now we will prove that $\mathcal{G}$ is convex:
+\begin{lemma} \label{delta}
+$||B_0^{-1}\delta||$ is convex in $\delta$
+\end{lemma}
 \begin{proof}
-As a beginning we will prove that $||B_0^{-1}\delta||$ is convex in $\delta$.
 By convexity definition, for a scalar $0 \leq \alpha \leq 1$: 
 \begin{equation} 
 \begin{split}
@@ -380,14 +406,18 @@ By convexity definition, for a scalar $0 \leq \alpha \leq 1$:
 \end{split}
 \end{equation}
 Where the last inequality comes from the triangle inequality.
-\\
-We continue by showing that $||B_0^{-1}L||$ is convex in $\Delta_s, \delta_p$
-and $\delta_q$. 
+\end{proof}
+
 We recall that:
 \begin{equation*} 
 L:= \Delta_S - p_0\delta_p^T - \delta_pp_0^T - q_0\delta_q^T - \delta_qq_0^T
 \end{equation*}
-Again, we show it from the definition of $L$ and convexity:
+\begin{lemma} \label{L}
+$||B_0^{-1}L||$ is convex in $\Delta_s, \delta_p$
+and $\delta_q$.
+\end{lemma}
+\begin{proof}
+We show it from the definition of $L$ and convexity:
 \begin{equation*} 
 \begin{split}
 & ||\alpha\Delta_{s1}+(1-\alpha)\Delta_{s2} -
@@ -405,19 +435,102 @@ q_0\delta_{q1}^T - \delta_{q1}q_0^T|| \\
 q_0\delta_{q2}^T - \delta_{q2}q_0^T||
 \end{split}
 \end{equation*}
-The last part is proving that $||B_0^{-1}Q||$ is convex in $\delta_p$
-and $\delta_q$. We recall that:
-\begin{equation*} 
-Q:=\delta_p\delta_p^T + \delta_q\delta_q^T
-\end{equation*}
-\begin{equation*} 
-\begin{split}
-|| & B_0^{-1}[(\alpha\delta_{p1}+(1-\alpha)\delta_{p2})(\alpha\delta_{p1}+(1-\alpha)\delta_{p2})^T 
-& + (\alpha\delta_{q1}+(1-\alpha)\delta_{q2})(\alpha\delta_{q1}+(1-\alpha)\delta_{q2})^T]||
-\end{split}
-\end{equation*}
 \end{proof}
-\bibliographystyle{unsrt}
-\bibliography{references}
+
+We recall that:
+\begin{equation*} 
+M:=\delta_p\delta_p^T + \delta_q\delta_q^T
+\end{equation*}
+\begin{lemma} \label{M}
+$||B_0^{-1}M||$ is convex in $\delta_p$
+and $\delta_q$.
+\end{lemma}
+\begin{proof}
+\begin{alignat*}{2}
+& F:=  && \ \alpha||B_0^{-1}[\delta_{p1}\delta_{p1}^T +
+\delta_{q1}\delta_{q1}^T]|| \\
+& && + (1-\alpha)||B_0^{-1}[\delta_{p2}\delta_{p2}^T +
+\delta_{q2}\delta_{q2}^T]|| \\
+& && - ||B_0^{-1}[(\alpha\delta_{p1}+(1-\alpha)\delta_{p2})(\alpha\delta_{p1} +
+ (1-\alpha)\delta_{p2})^T  \\
+& &&+ (\alpha\delta_{q1}+(1-\alpha)\delta_{q2})(\alpha\delta_{q1} +
+ (1-\alpha)\delta_{q2})^T]||  
+\end{alignat*}
+We would like to prove that $0 \leq F$:
+\begin{alignat*}{2}
+& F=  && \alpha||B_0^{-1}[\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T]|| \\
+& && + (1-\alpha)||B_0^{-1}[\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T]|| \\
+& && - ||B_0^{-1}[(\alpha\delta_{p1}+(1-\alpha)\delta_{p2})(\alpha\delta_{p1} +  (1-\alpha)\delta_{p2})^T  \\
+& && + (\alpha\delta_{q1}+(1-\alpha)\delta_{q2})(\alpha\delta_{q1} +  (1-\alpha)\delta_{q2})^T]||  \\
+% & = && \alpha||B_0^{-1}[\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T]|| \\
+% & && + (1-\alpha)||B_0^{-1}[\delta_{p2}\delta_{p2}^T +
+% \delta_{q2}\delta_{q2}^T]|| \\
+% & && - || \alpha^2(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T) 
+% - (1-\alpha)^2(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T) \\
+% & && + \alpha(1-\alpha)(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T
+% +\delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T) || \\
+& \leq && \alpha||B_0^{-1}[\delta_{p1}\delta_{p1}^T +
+\delta_{q1}\delta_{q1}^T]|| \\
+& && + (1-\alpha)||B_0^{-1}[\delta_{p2}\delta_{p2}^T +
+\delta_{q2}\delta_{q2}^T]|| \\
+& && - || \alpha^2(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T) 
+- (1-\alpha)^2(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T) \\
+& && + \alpha(1-\alpha)(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T
++\delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T) || \\
+& = && \alpha(1-\alpha)[||B_0^{-1}(\delta_{p1}\delta_{p1}^T +
+\delta_{q1}\delta_{q1}^T)||\\
+& && +||B_0^{-1}(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T)|| \\
+& && -||B_0^{-1}(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T
++\delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T)||
+\end{alignat*}
+$\alpha(1-\alpha)$ is a positive scalar, thus we should show that
+\begin{alignat*}{1}
+& ||B_0^{-1}(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T)|| +
+||B_0^{-1}(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T)|| \\
+\leq &  ||B_0^{-1}(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T
++\delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T)||
+\end{alignat*}
+Let choose $v$ such that
+\begin{alignat*}{2}
+& && v(B_0^{-1}(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T +\delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T))v^T \\
+& = &&||B_0^{-1}(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T +\delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T)||
+\end{alignat*}
+For the same $v$,
+\begin{equation*}
+ v(B_0^{-1}(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T))v^T
+ \leq ||B_0^{-1}(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T)||
+\end{equation*}
+and
+\begin{equation*}
+ v(B_0^{-1}(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T))v^T
+ \leq ||B_0^{-1}(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T)||
+\end{equation*}
+Putting all together, we get,
+\begin{alignat*}{2}
+& &&||B_0^{-1}(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T
++\delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T)|| \\
+& = && v(B_0^{-1}(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T +\delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T))v^T \\
+& = && v(B_0^{-1}(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T))v^T +
+v(B_0^{-1}(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T))v^T \\
+& \leq &&  ||B_0^{-1}(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T)|| +
+||B_0^{-1}(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T)||
+\end{alignat*}
+%\end{equation*}
+% \begin{alignat*}{3}
+% & ||B_0^{-1}[(\alpha\delta_{p1}+(1-\alpha)\delta_{p2})(\alpha\delta_{p1}
+% + (1-\alpha)\delta_{p2})^T  \\
+% & + (\alpha\delta_{q1}+(1-\alpha)\delta_{q2})(\alpha\delta_{q1}
+% + (1-\alpha)\delta_{q2})^T]|| \\
+% = & || \alpha^2(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T) 
+% - (1-\alpha)^2(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T) \\
+% & + \alpha(1-\alpha)(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T
+% +\delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T) ||
+% \end{alignat*}
+\end{proof}
+
+\begin{corollary}
+From lemmas \ref{delta}, \ref{L} and \ref{M} we can conclud that $\mathcal{G}$
+is convex.
+\end{corollary}
 
 \end{document}

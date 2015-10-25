@@ -1,12 +1,12 @@
 #TeXlipse project settings
-#Mon Jul 20 22:17:17 IDT 2015
+#Sun Oct 25 21:09:12 IST 2015
 markTmpDer=true
 builderNum=2
 outputDir=
 makeIndSty=
 bibrefDir=
 outputFormat=pdf
-tempDir=tmp
+tempDir=
 mainTexFile=document.tex
 outputFile=LDA.pdf
 langSpell=en

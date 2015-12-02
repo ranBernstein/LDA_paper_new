@@ -14,11 +14,4 @@
 	<natures>
 		<nature>net.sourceforge.texlipse.builder.TexlipseNature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>bib.bib</name>
-			<type>1</type>
-			<location>C:/Program Files (x86)/MiKTeX 2.9/bibtex/bib/feupphdteses/References.bib</location>
-		</link>
-	</linkedResources>
 </projectDescription>

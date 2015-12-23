@@ -1,0 +1,77 @@
+\begin{lemma} \label{M}
+$||B_0^{-1}M||$ is convex in $\delta_p$
+and $\delta_q$.
+\end{lemma}
+\begin{proof}
+\begin{alignat*}{2}
+& F:=  && \ \alpha||B_0^{-1}[\delta_{p1}\delta_{p1}^T +
+\delta_{q1}\delta_{q1}^T]|| \\
+& && + (1-\alpha)||B_0^{-1}[\delta_{p2}\delta_{p2}^T +
+\delta_{q2}\delta_{q2}^T]|| \\
+& && - ||B_0^{-1}[(\alpha\delta_{p1}+(1-\alpha)\delta_{p2}) \\
+& && (\alpha\delta_{p1} + (1-\alpha)\delta_{p2})^T  \\
+& && + (\alpha\delta_{q1}+(1-\alpha)\delta_{q2}) \\
+& && (\alpha\delta_{q1} + (1-\alpha)\delta_{q2})^T]||  
+\end{alignat*}
+We would like to prove that $0 \leq F$:
+\begin{alignat*}{3}
+& F=  && &&\alpha||B_0^{-1}[\delta_{p1}\delta_{p1}^T +
+\delta_{q1}\delta_{q1}^T]|| \\
+& && + &&(1-\alpha)||B_0^{-1}[\delta_{p2}\delta_{p2}^T +
+\delta_{q2}\delta_{q2}^T]|| \\
+& && - && ||B_0^{-1}[(\alpha\delta_{p1}+(1-\alpha)\delta_{p2}) \\
+& && &&(\alpha\delta_{p1} + (1-\alpha)\delta_{p2})^T  \\
+& && + && (\alpha\delta_{q1}+(1-\alpha)\delta_{q2})(\alpha\delta_{q1} \\
+& && + && (1-\alpha)\delta_{q2})^T]||  \\
+
+& \leq && && \alpha||B_0^{-1}[\delta_{p1}\delta_{p1}^T +
+\delta_{q1}\delta_{q1}^T]||  \\
+& && + && (1-\alpha)||B_0^{-1}[\delta_{p2}\delta_{p2}^T +
+\delta_{q2}\delta_{q2}^T]|| \\
+& && - && || \alpha^2(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T) \\
+& && - && (1-\alpha)^2(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T) \\
+& && + && \alpha(1-\alpha)(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T \\
+& && + && \delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T) || \\
+& = && && \alpha(1-\alpha)[||B_0^{-1}(\delta_{p1}\delta_{p1}^T \\
+& && + && \delta_{q1}\delta_{q1}^T)||\\
+& && + && ||B_0^{-1}(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T)|| \\
+& && - && ||B_0^{-1}(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T \\
+& && + && \delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T)||
+\end{alignat*}
+$\alpha(1-\alpha)$ is a positive scalar, thus we should show that
+\begin{alignat*}{2}
+& && ||B_0^{-1}(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T)|| \\
+& && + ||B_0^{-1}(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T)|| \\
+& \leq &&  ||B_0^{-1}(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T \\
+& && +\delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T)||
+\end{alignat*}
+Let choose $v$ such that
+\begin{alignat*}{2}
+& && v(B_0^{-1}(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T\\
+& &&+\delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T))v^T \\
+& = &&||B_0^{-1}(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T\\
+& && + \delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T)||
+\end{alignat*}
+For the same $v$,
+\begin{alignat*}{2}
+ & && v(B_0^{-1}(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T))v^T \\
+& \leq && ||B_0^{-1}(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T)||
+\end{alignat*}
+and
+\begin{alignat*}{2}
+ & && v(B_0^{-1}(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T))v^T \\
+ & \leq && ||B_0^{-1}(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T)||
+\end{alignat*}
+Putting all together, we get,
+\begin{alignat*}{2}
+& &&||B_0^{-1}(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T \\
+& &&+\delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T)|| \\
+& = && v(B_0^{-1}(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T\\
+& && +\delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T))v^T\\
+& = && v(B_0^{-1}(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T))v^T \\
+& && + v(B_0^{-1}(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T))v^T \\
+& \leq &&  ||B_0^{-1}(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T)|| \\
+& && + ||B_0^{-1}(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T)||
+\end{alignat*}
+
+\end{proof}

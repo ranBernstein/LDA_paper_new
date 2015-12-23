@@ -46,6 +46,27 @@
 \maketitle
 
 \begin{abstract}
+Linear discriminant Analysis (LDA) is widely used calssificatio and
+dimensionality reduction in many fields.
+As data evolves, LDA models must be recomputed. 
+In distributed streaming settings, however, periodically recomputing the global model is
+wasteful: communicating new observations or model updates
+is required even when the model is, in practice, unchanged.
+This is prohibitive in many settings, such as in wireless sensor
+networks, or when the number of nodes is very large. The
+alternative, monitoring prediction accuracy, is not always
+sufficient: in some settings, for example, we are interested in
+the model's coefficients, rather than its predictions.
+We propose the first monitoring algorithm for LDA models of distributed data
+streams that guarantees a bounded model error. It maintains an accurate estimate
+using a fraction of the communication by recomputing only
+when the precomputed model is suffiengly far from the
+(hypothetical) current global model. When the global model
+is stable, no communication is needed.
+Experiments on real and synthetic datasets show that
+our approach reduces communication by up to two orders
+of magnitude while providing an accurate estimate of the
+current global model in all nodes.
 \end{abstract}
 
 \section{Introduction}
@@ -69,8 +90,43 @@ c = \frac{1}{2}(T-{\mu_p}^T S_p^{-1} {\mu_p}+{\mu_q}^T S_q^{-1} {\mu_q})
 \end{equation}
 \subsection{Our Contribution}
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=60mm]{NegativeExample.png}
+\caption{Example of false monitoring by applying the local LDA formula. The
+initial state of the data is presented in (A) and the state in a later point
+is shown in (B). In (B) every node (green and red) calculates the same angle
+for the separtor  as it was in (A), i.e., no violation is made. But it can be
+seen the true separtor (blue dashed line) angle is significantly changed.}
+\label{NegativeExampl}
+
+\end{figure}
 \section{Related Work}
 \subsection{Distributed Monitoring}
+The last decade witnessed a sharp increase in work on imposing local conditions for monitoring the value of a function
+defined over distributed nodes. While the general problem is NP-complete
+\cite{keren2014geometric}, considerable progress has been made for real-life problems. Most work dealt with the simpler cases of
+linear functions \cite{keralapura2006communication, kashyap2008efficient}, as well as monotonic
+functions \cite{michel2005klee}.
+Some papers addressed non-linear problems, e.g., monitoring
+the value of a single-variable polynomial \cite{shah2008handling}, and analysis
+of eigenvalue perturbation \cite{huang2007communication}. 
+In \cite{sharfman2007geometric} a geometric approach for monitoring arbitrary functions over distributed
+streams was proposed, and later extended and generalized
+\cite{keren2012shape,lazerson2015monitoring}. However, nearly all work on geometric monitoring addressed
+functions which are either polynomials (typically quadratic), or defined by
+compositions of polynomial with simple functions such as medians and quotients. 
+The closest work to ours is on Least Square Regression
+\cite{gabel2015monitoring}, we will harness some of their mathematical lemmas
+for our LDA problem. To the best of our knowledge, the problem addressed in this
+paper monitoring the LDA model was never addressed over a distributed setting. Note
+that the monitored function contains the highly complicated
+operation of matrix inversion, which is not linear or convex,
+and which, when written explicitly, becomes intractable even
+for relatively low dimensions (e.g., the analytic expression
+for the inverse of a $20 \times 20$ matrix involves polynomials with
+$20!$ monomials). Therefore, a straightforward application of
+previous work on geometric monitoring is impossible.
 
 \section{Problem Definition}
 \subsection{Monitoring LDA of Distributed Streams}
@@ -248,7 +304,12 @@ Where $||A||$ is the operator norm of the matrix A.
 The proof of the lemma \ref{convexBound} quite technical, and
 the details are available in Appendix A.
 
-\subsection{Node wise Probabilistic Point of View }
+\subsection{Probabilistic Distributed LDA Monitoring}
+In this section we will develop a probabistic framwork for violation recopvery.
+We call it Probabilistic Distributed LDA Monitoring (PLDA). The basic idea is
+not to sync when a single node is violated but when the vilations amount is
+above a certin threshold. The derivation of this threshold is shown below:
+
 Let $TV \in {0,1}$ stand for the indicator for True
 Violation, then  
 \begin{equation*}
@@ -282,7 +343,7 @@ If we assume $P_{TP}=1$, it is simplfied to:
 \begin{equation*}
 P(TV=1|V=v) = \frac{B_{TP}}{P_{TV}B_{TP} + (1-P_{TV})B_{FP}}
 \end{equation*}
-\section{EVALUATION}
+\section{Evaluation}
 \subsection{Synthetic Datasets}
 
 \subsubsection{Effect of Threshold}
@@ -334,7 +395,55 @@ Is seen in Fig \ref{Noise}.
 	\label{Noise}
 	\end{figure}
 
-\subsection{Convex Bound Proof}
+\section{Real Data Experiments}
+In this section we will demonstrate the algorithm with 3 datasest. The first
+(New Messages Users Preference Monitoring) is relativly small, and a small scale
+scenario will be demonstarated on it using the deterministic DLDA. 
+\subsection{New Messages Users Preference Monitoring}
+\cite{usenet}
+\subsection{Power Consumtion Monitoring}
+The dataset contains hourly power supply of an Italy electricity company which
+records the power from two sources: power supply from main grid and power 
+transformed from other grids. This stream contains three year power supply records 
+from 1995 to 1998, and our learning task is to predict which hour (1 out of 24 hours) the 
+current power supply belongs to. The concept drifting in this stream is mainly 
+driven by the issues such as the season, weather, hours of a day (e.g., morning 
+and evening), and the differences between working days and weekend.  
+This dataset is described and can be downloaded in \cite{powerSupply}.
+The binary classifcation that was chosen for the demonstration is given a power
+supply measurment, decide if it is a night or a day. This is an
+example for gradual concept drift adaptation (seasons do not change suddenly).
+
+
+\begin{figure*}[h]
+\centering
+\includegraphics[width=\textwidth]{PowerSupply/errorComparison.png}
+\caption{An adaptation to a gradual concept drift of the power
+supply dataset is demonstrated by a comparison between the fraction (out of 50)
+of violated according to the local DLDA bound nodes (blue), to the true error in the 
+norm of the whole data aggregated from all of the nodes (green).}
+\label{PowerSupply}
+\end{figure*}
+
+\subsection{Gas Sensor Time Series Monitoring}
+Data in this experiment consists of measurements collected
+by an array of 16 chemical sensors recorded at a sampling
+rate of 100Hz for 24 hours, resulting in 8378504 data points for each sensor. 
+This dataset is described in \cite{bigGas}.
+At the first 12 hours the task is to obtain the exsitence of Carbon monoxide
+(CO) and from the 13'th hour the task is to obtain the exsitence of Methane. The
+change between the first task and the second is the CD that should be
+detected. In Fig \ref{BigGasShowData} a PCA projection of the data is shown.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=60mm]{BigGas/showData.png}
+\caption{2 dimension PCA projection of the data, before the CD (A),
+after the CD (B), and all of the data together with the LDA separator of each
+period (C). It can be seen that there is a differnce in the separator's
+direction between the periods.}
+\label{BigGasShowData}
+\end{figure}
 
 \bibliographystyle{unsrt}
 \bibliography{bib}
@@ -475,93 +584,14 @@ $||B_0^{-1}M||$ is convex in $\delta_p$
 and $\delta_q$.
 \end{lemma}
 \begin{proof}
-\begin{alignat*}{2}
-& F:=  && \ \alpha||B_0^{-1}[\delta_{p1}\delta_{p1}^T +
-\delta_{q1}\delta_{q1}^T]|| \\
-& && + (1-\alpha)||B_0^{-1}[\delta_{p2}\delta_{p2}^T +
-\delta_{q2}\delta_{q2}^T]|| \\
-& && - ||B_0^{-1}[(\alpha\delta_{p1}+(1-\alpha)\delta_{p2}) \\
-& && (\alpha\delta_{p1} + (1-\alpha)\delta_{p2})^T  \\
-& && + (\alpha\delta_{q1}+(1-\alpha)\delta_{q2}) \\
-& && (\alpha\delta_{q1} + (1-\alpha)\delta_{q2})^T]||  
+From the definition of operator norm, we can rewrite the function as:
+\begin{alignat*} {2}
+||M|| & = && \max_{||u||=1}{\{u^T \delta_p\delta_p^T u\}} + \max_{||u||=1}{\{u^T \delta_q\delta_q^T u\}} \\
+& = && \max_{||u||=1}{\{||u^T \delta_p||^2\}} + \max_{||u||=1}{\{||u^T
+\delta_q||^2\}}
 \end{alignat*}
-We would like to prove that $0 \leq F$:
-\begin{alignat*}{3}
-& F=  && &&\alpha||B_0^{-1}[\delta_{p1}\delta_{p1}^T +
-\delta_{q1}\delta_{q1}^T]|| \\
-& && + &&(1-\alpha)||B_0^{-1}[\delta_{p2}\delta_{p2}^T +
-\delta_{q2}\delta_{q2}^T]|| \\
-& && - && ||B_0^{-1}[(\alpha\delta_{p1}+(1-\alpha)\delta_{p2}) \\
-& && &&(\alpha\delta_{p1} + (1-\alpha)\delta_{p2})^T  \\
-& && + && (\alpha\delta_{q1}+(1-\alpha)\delta_{q2})(\alpha\delta_{q1} \\
-& && + && (1-\alpha)\delta_{q2})^T]||  \\
-% & = && \alpha||B_0^{-1}[\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T]|| \\
-% & && + (1-\alpha)||B_0^{-1}[\delta_{p2}\delta_{p2}^T +
-% \delta_{q2}\delta_{q2}^T]|| \\
-% & && - || \alpha^2(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T) 
-% - (1-\alpha)^2(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T) \\
-% & && + \alpha(1-\alpha)(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T
-% +\delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T) || \\
-& \leq && && \alpha||B_0^{-1}[\delta_{p1}\delta_{p1}^T +
-\delta_{q1}\delta_{q1}^T]||  \\
-& && + && (1-\alpha)||B_0^{-1}[\delta_{p2}\delta_{p2}^T +
-\delta_{q2}\delta_{q2}^T]|| \\
-& && - && || \alpha^2(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T) \\
-& && - && (1-\alpha)^2(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T) \\
-& && + && \alpha(1-\alpha)(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T \\
-& && + && \delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T) || \\
-& = && && \alpha(1-\alpha)[||B_0^{-1}(\delta_{p1}\delta_{p1}^T \\
-& && + && \delta_{q1}\delta_{q1}^T)||\\
-& && + && ||B_0^{-1}(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T)|| \\
-& && - && ||B_0^{-1}(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T \\
-& && + && \delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T)||
-\end{alignat*}
-$\alpha(1-\alpha)$ is a positive scalar, thus we should show that
-\begin{alignat*}{2}
-& && ||B_0^{-1}(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T)|| \\
-& && + ||B_0^{-1}(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T)|| \\
-& \leq &&  ||B_0^{-1}(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T \\
-& && +\delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T)||
-\end{alignat*}
-Let choose $v$ such that
-\begin{alignat*}{2}
-& && v(B_0^{-1}(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T\\
-& &&+\delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T))v^T \\
-& = &&||B_0^{-1}(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T\\
-& && + \delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T)||
-\end{alignat*}
-For the same $v$,
-\begin{alignat*}{2}
- & && v(B_0^{-1}(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T))v^T \\
-& \leq && ||B_0^{-1}(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T)||
-\end{alignat*}
-and
-\begin{alignat*}{2}
- & && v(B_0^{-1}(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T))v^T \\
- & \leq && ||B_0^{-1}(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T)||
-\end{alignat*}
-Putting all together, we get,
-\begin{alignat*}{2}
-& &&||B_0^{-1}(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T \\
-& &&+\delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T)|| \\
-& = && v(B_0^{-1}(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T\\
-& && +\delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T))v^T\\
-& = && v(B_0^{-1}(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T))v^T \\
-& && + v(B_0^{-1}(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T))v^T \\
-& \leq &&  ||B_0^{-1}(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T)|| \\
-& && + ||B_0^{-1}(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T)||
-\end{alignat*}
-%\end{equation*}
-% \begin{alignat*}{3}
-% & ||B_0^{-1}[(\alpha\delta_{p1}+(1-\alpha)\delta_{p2})(\alpha\delta_{p1}
-% + (1-\alpha)\delta_{p2})^T  \\
-% & + (\alpha\delta_{q1}+(1-\alpha)\delta_{q2})(\alpha\delta_{q1}
-% + (1-\alpha)\delta_{q2})^T]|| \\
-% = & || \alpha^2(\delta_{p1}\delta_{p1}^T + \delta_{q1}\delta_{q1}^T) 
-% - (1-\alpha)^2(\delta_{p2}\delta_{p2}^T + \delta_{q2}\delta_{q2}^T) \\
-% & + \alpha(1-\alpha)(\delta_{p1}\delta_{p2}^T+\delta_{p2}\delta_{p1}^T
-% +\delta_{q1}\delta_{q2}^T+\delta_{q2}\delta_{q1}^T) ||
-% \end{alignat*}
+Noticing that max over a fininte number of convex function is also a convex
+function end our proof.
 \end{proof}
 
 \begin{corollary}

@@ -1,18 +1,8 @@
 %%This is a very basic article template.
 %%There is just one section and two subsections.
 \documentclass[11pt,twocolumn,varwidth=true,a4paper,fleqn]{article}
-% \usepackage{fullpage}
-% \usepackage{url}
-% \usepackage[margin=1.1in]{geometry}
-% \usepackage{graphicx}
-% \usepackage{csvsimple}
-% \usepackage{varwidth}
-% \usepackage{array}
-% \usepackage{float}
-% \usepackage{pgfplotstable}
+\usepackage{amssymb}
 \usepackage[T1]{fontenc}
-% \usepackage[compact]{titlesec}
-% \usepackage{authblk}
 \usepackage{bbm}
 
 \usepackage{amsthm}
@@ -41,25 +31,27 @@
 \begin{document}
 \nocite{*}
 
-\title{Linear Discriminant Analysis Models of Distributed Streams}
+\title{Concept Drift Detection in Distributed Systems through LDA
+Model Monitoring}
 \date{}
 \maketitle
 
 \begin{abstract}
-Linear discriminant Analysis (LDA) is widely used calssificatio and
-dimensionality reduction in many fields.
-As data evolves, LDA models must be recomputed. 
+Linear discriminant Analysis (LDA) is widely used for calssification and
+dimensionality reduction in many fields. As data evolves, LDA models must be recomputed. 
 In distributed streaming settings, however, periodically recomputing the global model is
-wasteful: communicating new observations or model updates
-is required even when the model is, in practice, unchanged.
+wasteful: communicating new observations or model updates is required even when the model 
+is, in practice, unchanged.
 This is prohibitive in many settings, such as in wireless sensor
 networks, or when the number of nodes is very large. The
 alternative, monitoring prediction accuracy, is not always
-sufficient: in some settings, for example, we are interested in
-the model's coefficients, rather than its predictions.
-We propose the first monitoring algorithm for LDA models of distributed data
-streams that guarantees a bounded model error. It maintains an accurate estimate
-using a fraction of the communication by recomputing only
+sufficient: we might be interested in the model's coefficients, rather than its
+predictions, and by an early detection of a needed change in the angle of
+a linear classifier we can adjust the model to the new data even before errors
+occur.
+We propose the first monitoring algorithm for LDA
+models of distributed data streams that guarantees a bounded model error. 
+It maintains an accurate estimate using a fraction of the communication by recomputing only
 when the precomputed model is suffiengly far from the
 (hypothetical) current global model. When the global model
 is stable, no communication is needed.
@@ -70,14 +62,28 @@ current global model in all nodes.
 \end{abstract}
 
 \section{Introduction}
-\par Fisher's linear discriminant \cite{fisher1936use}, a method used in statistics, 
+\subsection{Linear discriminant Analysis}
+\par LDA \cite{fisher1936use}, a method used in statistics, 
 pattern recognition and machine learning to find a linear combination of features 
 that characterizes or separates two or more classes of objects or events. 
 The resulting combination may be used as a linear classifier, or, 
 more commonly, for dimensionality reduction before later classification.
-\\\par FLD approaches the problem by assuming that the conditional probability density functions $P(\vec x|y=p)$ and $P(\vec x|y=q)$ are both normally distributed with mean and covariance parameters $\left(\vec \mu_p, B_p\right)$ and $\left(\vec \mu_q, B_q\right)$, for two target classes p and q respectively.
-%\\$w \propto (S_p+S_q)^{-1}(\mu_p - \mu_q)$
-\\Under this assumption, the Bayes optimal decision criterion is a threshold on the dot product
+\\\par LDA approaches the problem by assuming that the conditional probability
+density functions $P(\vec x|y=p)$ and $P(\vec x|y=q)$ are both normally distributed with 
+mean and covariance parameters $\left(\vec \mu_p, B_p\right)$ and 
+$\left(\vec \mu_q, B_q\right)$, for two target classes p and q respectively.
+Let ${(x_1,y_1),\ldots,(x_n,y_n)}$ be a set of n observation pairs
+of $d < n$ independent variables and one dependent variable,
+where $x_i$ are column vectors in $\mathbb{R}^d$, and $y_i$ is the
+corresponding classes. 
+We seek a linear transformation (model) $w \in \mathbb{R}^d $,
+that maximizes the separation between the classes, where the separation is
+defined to be the ratio of the variance between the classes to the variance
+within the classes:
+$S := \frac{\sigma^2_between}{\sigma^2_within} = \frac{(w \dot (\mu_p -
+\mu_q))^2}{w^T(B_p+B_q)w}$
+Under this assumption, the Bayes optimal decision criterion is a threshold on the 
+dot product
 \begin{equation*} \label{eq:decision}
 w \cdot x > c
 \end{equation*}
@@ -88,19 +94,28 @@ w \propto (B_p+B_q)^{-1}(\mu_p - \mu_q)
 \begin{equation} \label{eq:c}
 c = \frac{1}{2}(T-{\mu_p}^T S_p^{-1} {\mu_p}+{\mu_q}^T S_q^{-1} {\mu_q})
 \end{equation}
+In this work we monitor $w$, and will reffer it as the
+classifier's \textit{model}.
 \subsection{Our Contribution}
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=60mm]{NegativeExample.png}
-\caption{Example of false monitoring by applying the local LDA formula. The
-initial state of the data is presented in (A) and the state in a later point
-is shown in (B). In (B) every node (green and red) calculates the same angle
-for the separtor  as it was in (A), i.e., no violation is made. But it can be
-seen the true separtor (blue dashed line) angle is significantly changed.}
-\label{NegativeExampl}
+We describe DLDA: a novel communication-efficient monitoring
+algorithm for LDA models of distributed, dynamic data streams. 
+To our knowledge, this is the first algorithm that monitors the model itself, 
+rather than its prediction or fit. Given a previously-computed global model, 
+we derive local constraints on the local data at each node. A node only communicates
+if its constraint is broken. These constraints guarantee that
+if no node communicates, the global hypothetical model is
+suffeciently close to the precomputed model.
+DILSQ easily generalizes to more complex least squares
+variants such as GLS and RLS [9], and is independent of how
+the model was computed. Evaluation on two real datasets
+shows it reduces communication by up to two orders of
+magnitude. Complete elimination of all communication is
+also possible when the model is xed.
 
-\end{figure}
+Probabilistic Distributed LDA Monitoring (PLDA)
+
+
 \section{Related Work}
 \subsection{Distributed Monitoring}
 The last decade witnessed a sharp increase in work on imposing local conditions for monitoring the value of a function
@@ -127,11 +142,15 @@ for relatively low dimensions (e.g., the analytic expression
 for the inverse of a $20 \times 20$ matrix involves polynomials with
 $20!$ monomials). Therefore, a straightforward application of
 previous work on geometric monitoring is impossible.
-
+\subsection{Concept Drift Detection}
 \section{Problem Definition}
-\subsection{Monitoring LDA of Distributed Streams}
-Assume that the observations ${(x^i_j; y^i_j)}$ are distributed across k nodes, and that these observations are dynamic (they change over time, as nodes receive new observations that replace older ones. As data evolves, it is possible that the
-previously computed model no longer matches the current true model. We wish to maintain an accurate estimation $w_0$ of the current global FLD model, $w$. The question is then when to update the model.
+%\subsection{Monitoring LDA of Distributed Streams}
+Assume that the observations ${(x^i_j; y^i_j)}$ are distributed across k nodes, 
+and that these observations are dynamic (they change over time, as nodes receive 
+new observations that replace older ones. As data evolves, it is possible that the
+previously computed model no longer matches the current true model. We wish to maintain 
+an accurate estimation $w_0$ of the current global FLD model, $w$. 
+The question is then when to update the model.
 
 Let $w_0$ be the existing model (vector of weights of a linear classifier), 
 previously computed at some point in the past (the synchronization time), 
@@ -149,6 +168,43 @@ defined by
 \end{equation}
 Where $R_0 := \  \parallel w_0 \parallel \sqrt{1-T^2}$ is the maximal radius.
 \section{Monitoring Distributed LDA With Convex Subsets}
+Monitoring distributed OLS models is difficult because the
+global model cannot be inferred from the local model at each
+node. Even when all current local models $w_i$ are similar to the precomputed
+local models $w_0$, the current global model $w$ may
+be very different from the precomputed model $w_0$. Consider
+the example in Figure \ref{NegativeExampl} with $k = 2$ nodes and dimension $d =
+2$. The global model's angle deviation is large (45 degrees) even
+though local models are identical to what they have been in the initial point. 
+To overcome this difficulty, we turn to geometric monitoring. Geometric monitoring
+\cite{keren2014geometric, keren2012shape} is a communicatione
+efficient approach that monitors whether a function of distributed
+data streams crosses a threshold. The key idea is to
+impose constraints on local data at the nodes, rather than
+on the function of the global aggregate. Given a function of
+the average of all local data and the threshold, we compute a
+convex safe zone for each node. As we show below, convexity
+plays a key role in the correctness of this scheme. As long
+as local data stay inside the safe zones, we guarantee that
+the function of the global average does not cross a threshold.
+Nodes communicate only when local data drifts outside the
+safe zone, which we call a safe zone violation. Once that
+happens, violations can be resolved, for example by gathering
+data from all nodes and recomputing $w_0$ and the safe zones.
+To summarize, we want to impose conditions on the local
+data at each node so that as long as they hold, $||w-w_0||<R_0$.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=60mm]{NegativeExample.png}
+\caption{Example of false monitoring by applying the LDA formula locally. The
+initial state of the data is presented in (A) and the state in a later point
+is shown in (B). In (B) every node (green and red) calculates the same angle
+for the separtor  as it was in (A), i.e., no violation is made. But it can be
+seen the true separtor (blue dashed line) angle is significantly changed.}
+\label{NegativeExampl}
+
+\end{figure}
 \subsection{Notation}
 $k$ - number of nodes
 \\$n$ - number of vectors in a node
@@ -306,7 +362,7 @@ the details are available in Appendix A.
 
 \subsection{Probabilistic Distributed LDA Monitoring}
 In this section we will develop a probabistic framwork for violation recopvery.
-We call it Probabilistic Distributed LDA Monitoring (PLDA). The basic idea is
+We call it Probabilistic Distributed LDA Monitoring (PDLDA). The basic idea is
 not to sync when a single node is violated but when the vilations amount is
 above a certin threshold. The derivation of this threshold is shown below:
 

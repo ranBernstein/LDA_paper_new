@@ -8,11 +8,10 @@
 \usepackage{amsthm}
 % \usepackage{amsmath}
 \usepackage[utf8]{inputenc}
-% \usepackage[english]{babel}
-% \usepackage[nottoc]{tocbibind}
-% %\usepackage[style=authoryear,backend=biber]{biblatex}
-% \usepackage[backend=bibtex]{biblatex}
-% \usepackage{biblatex}
+
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage[caption=false]{subfig}
 
 \usepackage{graphicx}
 \usepackage{csvsimple}
@@ -37,7 +36,7 @@ Model Monitoring}
 \maketitle
 
 \begin{abstract}
-Linear discriminant Analysis (LDA) is widely used for calssification and
+Linear discriminant Analysis (LDA) is widely used for classification and
 dimensionality reduction in many fields. As data evolves, LDA models must be recomputed. 
 In distributed streaming settings, however, periodically recomputing the global model is
 wasteful: communicating new observations or model updates is required even when the model 
@@ -52,7 +51,7 @@ occur.
 We propose the first monitoring algorithm for LDA
 models of distributed data streams that guarantees a bounded model error. 
 It maintains an accurate estimate using a fraction of the communication by recomputing only
-when the precomputed model is suffiengly far from the
+when the precomputed model is sufficiently far from the
 (hypothetical) current global model. When the global model
 is stable, no communication is needed.
 Experiments on real and synthetic datasets show that
@@ -62,6 +61,15 @@ current global model in all nodes.
 \end{abstract}
 
 \section{Introduction}
+A common challenge when mining data streams is that
+the data streams are not always strictly stationary, i.e., the
+concept of data (underlying distribution of incoming data)
+unpredictably drifts over time. This has encouraged the need
+to detect these concept drifts in the data streams in a timely
+manner, be it for business intelligence or as a means to track
+the performance of statistical prediction models that use these
+data streams as input. This paper focuses on detecting concept drifts affecting
+binary classification models.
 \subsection{Linear discriminant Analysis}
 \par LDA \cite{fisher1936use}, a method used in statistics, 
 pattern recognition and machine learning to find a linear combination of features 
@@ -80,8 +88,10 @@ We seek a linear transformation (model) $w \in \mathbb{R}^d $,
 that maximizes the separation between the classes, where the separation is
 defined to be the ratio of the variance between the classes to the variance
 within the classes:
-$S := \frac{\sigma^2_between}{\sigma^2_within} = \frac{(w \dot (\mu_p -
-\mu_q))^2}{w^T(B_p+B_q)w}$
+\begin{equation*}
+S := \frac{\sigma^2_between}{\sigma^2_within} = \frac{(w \dot (\mu_p -
+\mu_q))^2}{w^T(B_p+B_q)w}
+\end{equation*}
 Under this assumption, the Bayes optimal decision criterion is a threshold on the 
 dot product
 \begin{equation*} \label{eq:decision}
@@ -94,27 +104,22 @@ w \propto (B_p+B_q)^{-1}(\mu_p - \mu_q)
 \begin{equation} \label{eq:c}
 c = \frac{1}{2}(T-{\mu_p}^T S_p^{-1} {\mu_p}+{\mu_q}^T S_q^{-1} {\mu_q})
 \end{equation}
-In this work we monitor $w$, and will reffer it as the
+In this work we monitor $w$, and will refer it as the
 classifier's \textit{model}.
 \subsection{Our Contribution}
 
-We describe DLDA: a novel communication-efficient monitoring
-algorithm for LDA models of distributed, dynamic data streams. 
+We describe Distributed Linear Discriminant Analysis (DLDA): a novel
+communication-efficient monitoring algorithm for LDA models of distributed, dynamic data streams. 
 To our knowledge, this is the first algorithm that monitors the model itself, 
 rather than its prediction or fit. Given a previously-computed global model, 
 we derive local constraints on the local data at each node. A node only communicates
 if its constraint is broken. These constraints guarantee that
 if no node communicates, the global hypothetical model is
-suffeciently close to the precomputed model.
-DILSQ easily generalizes to more complex least squares
-variants such as GLS and RLS [9], and is independent of how
-the model was computed. Evaluation on two real datasets
-shows it reduces communication by up to two orders of
-magnitude. Complete elimination of all communication is
-also possible when the model is xed.
+sufficiently close to the precomputed model.
+Evaluation on three real datasets shows it reduces communication by up to two orders of
+magnitude. 
 
 Probabilistic Distributed LDA Monitoring (PLDA)
-
 
 \section{Related Work}
 \subsection{Distributed Monitoring}
@@ -143,6 +148,21 @@ for the inverse of a $20 \times 20$ matrix involves polynomials with
 $20!$ monomials). Therefore, a straightforward application of
 previous work on geometric monitoring is impossible.
 \subsection{Concept Drift Detection}
+
+Popular approaches for detecting concept drift identify the change point
+\cite{gama2004learning,wang2013concept}. DDM is the most widely used
+concept drift detection algorithm, that is strictly designed for streaming 
+data \cite{gama2004learning}. The test statistic DDM employs is the sum of 
+overall classification error and its empirical standard deviation. Early Drift
+Detection Method (EDDM) \cite{baena2006early}, achieves better detection results than DDM if the data stream has slow gradual change.
+EDDM monitors the distance between the two classification errors. Linear Four Rates (LFR) \cite{wang2015concept}, uses as a statistic a linear
+combination of all history errors, with a decay parameter. The approach specified in \cite{klinkenberg2000detecting,dries2009adaptive} makes use of SVM's error 
+for detection. DDM, EDDM, LFR and SVM related approaches focuses their analysis on the error
+and not on the model itself, and doesn't supply a theoretical guarantee on the validity of the
+a specific classification (LDA) global model in distributed setting as our DLDA.
+
+ 
+
 \section{Problem Definition}
 %\subsection{Monitoring LDA of Distributed Streams}
 Assume that the observations ${(x^i_j; y^i_j)}$ are distributed across k nodes, 
@@ -160,7 +180,7 @@ Given an error threshold $T$, our goal is to raise an alert if
 \begin{equation} \label{eq:coneCritiria}
 \frac{<w,w_0>}{\parallel w \parallel \parallel w_0 \parallel}  < T
 \end{equation}
-\\We will monitor the maximal voluem sphere around $w_0$ that resides completely
+\\We will monitor the maximal volume sphere around $w_0$ that resides completely
 inside the cone from equation~\ref{eq:coneCritiria}. This sphere is
 defined by
 \begin{equation} \label{eq:critiria}
@@ -168,7 +188,7 @@ defined by
 \end{equation}
 Where $R_0 := \  \parallel w_0 \parallel \sqrt{1-T^2}$ is the maximal radius.
 \section{Monitoring Distributed LDA With Convex Subsets}
-Monitoring distributed OLS models is difficult because the
+Monitoring distributed LDA models is difficult because the
 global model cannot be inferred from the local model at each
 node. Even when all current local models $w_i$ are similar to the precomputed
 local models $w_0$, the current global model $w$ may
@@ -177,7 +197,7 @@ the example in Figure \ref{NegativeExampl} with $k = 2$ nodes and dimension $d =
 2$. The global model's angle deviation is large (45 degrees) even
 though local models are identical to what they have been in the initial point. 
 To overcome this difficulty, we turn to geometric monitoring. Geometric monitoring
-\cite{keren2014geometric, keren2012shape} is a communicatione
+\cite{keren2014geometric, keren2012shape} is a communication
 efficient approach that monitors whether a function of distributed
 data streams crosses a threshold. The key idea is to
 impose constraints on local data at the nodes, rather than
@@ -209,7 +229,7 @@ seen the true separtor (blue dashed line) angle is significantly changed.}
 $k$ - number of nodes
 \\$n$ - number of vectors in a node
 \\$x^i_j$ - the j'th vector in the i'th node
-\\$y^i_j$ - the label (p or q) of $x^i_j$
+\\$y^i_j$ - the label (P or Q) of $x^i_j$
 %\\ D - sample of $n \cdot k$ labeled observations ${(x^i_j, y^i_j)}$
 \\$N_p$  - total number of observations from class P, from all of the nodes
 \\$N_q$  - total number of observations from class Q, from all of the nodes
@@ -247,24 +267,26 @@ then
 w_0:=(S_0 - p_0p_0^T - q_0q_0^T)^{-1}(p_0-q_0)=B_0^{-1}u_0
 \end{equation*}
 $\Delta_s, \delta_p$, and $\delta_q$ are the drift vectors of $S, p$, and $q$, i.e.:
-$
-\\\Delta_s:= S - S_0
-\\\delta_p:= p - p_0
-\\\delta_q := q - q_0$
+\begin{alignat*}{1}
+& \Delta_s:= S - S_0 \\
+& \delta_p:= p - p_0 \\
+& \delta_q := q - q_0
+\end{alignat*}
 \\If $S_0^i$, $p_0^i$ and $q_0^i$ are the local normalized scatter and averages
 of the samples in a node, we can define the local drift to be:
-$
-\\\Delta_s^i:= S^i - S_0^i
-\\\delta_p^i:= p^i - p_0^i
-\\\delta_q^i:= q^i - q_0^i
-$
+\begin{alignat*}{1}
+& \Delta_s^i:= S^i - S_0^i
+\\ & \delta_p^i:= p^i - p_0^i
+\\ & \delta_q^i:= q^i - q_0^i
+\end{alignat*}
 \begin{remark} \label{average}
 It easy to notice that every global drift is the average of the local drifts:
-\begin{equation*}
-\Delta_s = \frac{1}{k} \sum \Delta_s^i, \\
-\delta_p = \frac{1}{k} \sum \delta_p^i, \\
-\delta_q = \frac{1}{k} \sum \delta_q^i 
-\end{equation*}
+\begin{alignat*}{1}
+& \Delta_s = \frac{1}{k} \sum \Delta_s^i, \\
+& \delta_p = \frac{1}{k} \sum \delta_p^i, \\
+& \delta_q = \frac{1}{k} \sum \delta_q^i 
+\end{alignat*}
+
 \end{remark}
 
 \subsection{Convex Safe Zones}
@@ -361,16 +383,18 @@ The proof of the lemma \ref{convexBound} quite technical, and
 the details are available in Appendix A.
 
 \subsection{Probabilistic Distributed LDA Monitoring}
-In this section we will develop a probabistic framwork for violation recopvery.
+In this section a probabilistic framework for violation recovery is developed.
 We call it Probabilistic Distributed LDA Monitoring (PDLDA). The basic idea is
-not to sync when a single node is violated but when the vilations amount is
-above a certin threshold. The derivation of this threshold is shown below:
-
+not to sync when a single node is violated but when the violations amount is
+above a certain threshold. 
+This approach is based on the assumption that in an ongoing system, 
+the probability for a local violation in a node remains approximately the same
+while the true (global) error is low. 
 Let $TV \in {0,1}$ stand for the indicator for True
-Violation, then  
-\begin{equation*}
-P_{TV} := P(TV = 1),
-\end{equation*}
+Violation 
+%\begin{equation*}
+%P_{TV} := P(TV = 1),
+%\end{equation*}
 and let $v_i \in {0,1}$ stand for the indicator for a local violation in the
 i'th node. The probability for True Positive (TP) and False Positive (FP) in a
 node is:
@@ -382,43 +406,80 @@ Let $V$ be the random variable of the number of local violations
 \begin{equation*}
 V := \sum_{i=1}^k v_i,
 \end{equation*}
+For a $0 < \epsilon < 0.5$, we would like to derive a condition that 
+with high probability indicates an increase of the true error, i.e.:
+$P(V=v|TV=0) < \epsilon$. 
+%We would like to monitor the probability for TV, i.e.
+%$P(TV=1|V=v) > 1 - \epsilon$. 
+From Chernoff bound we get that for some integer $z$
 \begin{alignat*}{1}
-& B_{TP} := P(V=v | TV=1) \propto Bin(k,P_{TP}) \\
-& B_{FP} := P(V=v | TV=0) \propto Bin(k,P_{TF})
+& P(V>k*P_{FP}+z) \\
+& \leq \exp(-\frac{z^2}{2kP_{FP}(1-P_{FP})}) \\
+& \leq \epsilon
 \end{alignat*}
-We would like to monitor the probability for TV, i.e. $P(TV=1|V=v)$. Using
-Bayes' rule we can derive
-\begin{alignat*}{1}
-& P(TV=1|V=v) \\
-& = \frac{P(V=v, TV=1)}{P(V=v)}\\
-& = \frac{P(V=v|TV=1)P(TV=1)}{P(V=v)} \\
-& = \frac{P_{TV}B_{TP}}{P_{TV}B_{TP} + (1-P_{TV})B_{FP}}
-\end{alignat*}
-
-If we assume $P_{TP}=1$, it is simplfied to:
-\begin{equation*}
-P(TV=1|V=v) = \frac{B_{TP}}{P_{TV}B_{TP} + (1-P_{TV})B_{FP}}
-\end{equation*}
+Choosing $z=\sqrt{2kP_{FP}(P_{FP}-1)\log(\epsilon)}$ makes it an equality  
+$\exp(-\frac{z^2}{2kP_{FP}(1-P_{FP})}) = \epsilon$. We denote Violation
+Threshold (VT) as $VT:=k*P_{FP}+z$, and therefore we get 
+$P(V > VT) < \epsilon$ for an approximately steady true error.
+In simple words we get that with high probability if $V > VT$ there is an
+increase in the global error and that becomes our rule when to sync.
 \section{Evaluation}
+We evaluated performance of our monitoring algorithms,
+DLDA and PDLDA, using simulations with synthetic and three
+real-world distributed datasets. For each dataset, we run through 
+the data, simulate the nodes and the coordinator , count syncs,
+and keep track of the resulting true models $w$ and the
+current monitored models $w_0$. Our simulations use discrete
+time (rounds).
 \subsection{Synthetic Datasets}
+We compare DLDA to the T-periodic algorithm, denoted
+PER(T), a simple sampling algorithm that sends updates
+every T rounds. Though PER cannot guarantee maximum
+error, it can achieve arbitrarily low communication.
+Our main performance metric is communication, measured
+in \textbf{normalized messages} --- the average messages sent per
+round by each node. It is important to remember that DLDA \textit{guarantees}
+a global error below a given $T$ while for PER we don't have such a guarantee.
 
+\begin{figure*}[ht]
+	\centering
+	\includegraphics[width=\textwidth]{PER/PERvsDLDAoverTime.png}
+	\caption{ DLDA model error (blue) compared to PER(100) error (green), 
+	for k = 10 simulated nodes with d = 2 dimensions, threshold T = 0.99 and
+	window size is L=1000. 	Both algorithms reduce communication to 1/%, but DLDA
+	only syncs when $w$ changes. PER(100) syncs every 100 rounds, 
+	but is unable to maintain error below the threshold (dashed horizontal line).}
+	\label{PERvsDLDAoverTime}
+\end{figure*}
+	
+Figure \ref{PERvsDLDAoverTime} shows the behavior of the monitoring algorithm
+over a simulation on a dataset with 3 concept drifts. DLDA achieves
+communication of 0.01 messages per node per round, and the model error is always below the threshold. Conversely, the
+equivalent PER(100) algorithm is unable to maintain the
+error below the threshold, which would require a higher update
+frequency.  It can be seen that the periodic algorithm has error rate above the
+required threshold, and on the other hand syncs also when there is no reason
+between the concept drifts.
 \subsubsection{Effect of Threshold}
-Is seen in Fig \ref{PERvsDLDAoverTime} and in Fig  \ref{PERvsDLDAoverError}.
-	\begin{figure*}[ht]
+Figure \ref{PERvsDLDAoverError} shows the communication required for different
+threshold levels for the DLDA algorithm, and the minimal
+communication required to match DLDA using the PER.	
+It can been seen that for both fixed and drift data, DLDA outperforms PER for
+any given error threshold.
+ \begin{figure*}[ht]
 	\centering
 	\includegraphics[width=\textwidth]{PER/PERvsDLDAoverError.png}
-	\caption{One node naive sync.png}
+	\caption{Communication for DLDA (blue) and 
+	periodic algorithm tuned to achieve same max error
+	(green) at different threshold values.}
 	\label{PERvsDLDAoverError}
 	\end{figure*}
 
-	\begin{figure*}[ht]
-	\centering
-	\includegraphics[width=\textwidth]{PER/PERvsDLDAoverTime.png}
-	\caption{One node naive sync.png}
-	\label{PERvsDLDAoverTime}
-	\end{figure*}
-\subsubsection{Scalability}
-Is seen in Fig \ref{Nodes}.
+	
+\subsubsection{Nodes Scalability}
+Figure \ref{Nodes} shows communication for different values of the
+number of nodes k. We observe communication increases
+slowly, getting to 0.25\% for fixed data and 0.6\% for drift data for 25 nodes.
 	\begin{figure}[h]
 	\centering
 	\includegraphics[width=60mm]{CommunicationOfFixedVsDrift/Nodes.png}
@@ -426,6 +487,10 @@ Is seen in Fig \ref{Nodes}.
 	\label{Nodes}
 	\end{figure}
 \subsubsection{Dimension}
+Figure \ref{Dimension} compares communication with the dimension of the dataset.
+When window size $W$ is fixed, communication grows linearly with dimension $d$.
+However, if $W$ grows linearly with $d$, we see that communication
+remains very low (and in fact decreases a little).
 Is seen in Fig \ref{Dimension}.
 	\begin{figure}[h]
 	\centering
@@ -434,7 +499,8 @@ Is seen in Fig \ref{Dimension}.
 	\label{Dimension}
 	\end{figure}
 \subsubsection{Window Size}
-Is seen in Fig \ref{WindowSize}.
+Figure \ref{WindowSize} shows how communication decreases as a result
+of enlarging the window size $W$. 
 	\begin{figure}[h]
 	\centering
 	\includegraphics[width=60mm]{CommunicationOfFixedVsDrift/WindowSize.png}
@@ -442,8 +508,10 @@ Is seen in Fig \ref{WindowSize}.
 	\label{WindowSize}
 	\end{figure}
 \subsubsection{Noise}
-Is seen in Fig \ref{Noise}.
-	\begin{figure}[h]
+Figure \ref{Noise} shows normalized messages obtained at different
+noise magnitudes. As expected, the communication that is needed to preserve a
+fixed error threshold increases as the data gets more noisy.
+\begin{figure}[h]
 	\centering
 	\includegraphics[width=60mm]{CommunicationOfFixedVsDrift/Noise.png}
 	\caption{Communication As Function Of standard deviation of the Gaussians that
@@ -451,13 +519,37 @@ Is seen in Fig \ref{Noise}.
 	\label{Noise}
 	\end{figure}
 
-\section{Real Data Experiments}
-In this section we will demonstrate the algorithm with 3 datasest. The first
-(New Messages Users Preference Monitoring) is relativly small, and a small scale
-scenario will be demonstarated on it using the deterministic DLDA. 
-\subsection{New Messages Users Preference Monitoring}
-\cite{usenet}
-\subsection{Power Consumtion Monitoring}
+\subsection{Real Data Experiments}
+In this section we will demonstrate the algorithm with 3 datasets. The first
+(New Messages Users Preference Monitoring) is relatively small, and a small scale
+scenario is demonstrated on it using the deterministic DLDA. 
+\subsubsection{Messages Preference Monitoring}
+The USENET dataset is from \cite{usenetSource} and is described in
+\cite{usenet}.
+Text dataset that is simulates a stream of messages from different newsgroups
+(e.g. medicine, space, baseball) that are sequentially presented to a user, 
+who then labels them as interesting or junk, according to his personal interests. 
+Attribute values are binary indicating the presence or absence of the 128
+informative words. The drift occurs from an artificial change in the users's
+preference (from space to baseball). In Figure \ref{usenet} the DLDA with
+$W=450$ behaviour is presented. The first 450 rounds over the data are for
+initialization and not shown. At the first 50 rounds the algorithm's error
+increases from the noise of the data, there is no concept drift. From round 500
+to 600 the error is stable, again, coming only from the noise. In round 600
+there is a concept drift. It can be seen how from this point both the DLDA and
+the true error increasing until the sync in round 698.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=60mm]{Usenet/DriftDetected.png}
+	\caption{Comparison between DLDA (blue) maximal error over nodes and the true
+	global error (green) for $k=2$, $W=450$. It can be seen that DLDA responses to
+	the concept drift that occurs after 600 rounds (red x) and causes a sync in
+	round 698 (blue dot).}
+	\label{usenet}
+	\end{figure}
+	
+\subsubsection{Power Consumption Monitoring}
 The dataset contains hourly power supply of an Italy electricity company which
 records the power from two sources: power supply from main grid and power 
 transformed from other grids. This stream contains three year power supply records 
@@ -465,29 +557,48 @@ from 1995 to 1998, and our learning task is to predict which hour (1 out of 24 h
 current power supply belongs to. The concept drifting in this stream is mainly 
 driven by the issues such as the season, weather, hours of a day (e.g., morning 
 and evening), and the differences between working days and weekend.  
-This dataset is described and can be downloaded in \cite{powerSupply}.
-The binary classifcation that was chosen for the demonstration is given a power
-supply measurment, decide if it is a night or a day. This is an
+The dataset is described and can be downloaded in \cite{powerSupply}.
+The binary classification that was chosen for the demonstration is given a power
+supply measurement, decide if it is a night or a day. This is an
 example for gradual concept drift adaptation (seasons do not change suddenly).
+In Figure \ref{PowerSupplyFigures} DLDA and PDLDA are demonstrated. For a small 
+amount of nodes, $k=4$, and for big window size, $W=5000$, the communication is
+reduced to 0.3\%. For a more distributed system, k=36, and a smaller window
+size, $W=600$, the communication is reduced to 9\%. For the PDLDA with also
+$k=36$ and $W=600$ and a Violation Threshold (VT) of 50\% the communication is
+reduced to 2\%.
 
 
-\begin{figure*}[h]
-\centering
-\includegraphics[width=\textwidth]{PowerSupply/errorComparison.png}
-\caption{An adaptation to a gradual concept drift of the power
-supply dataset is demonstrated by a comparison between the fraction (out of 50)
-of violated according to the local DLDA bound nodes (blue), to the true error in the 
-norm of the whole data aggregated from all of the nodes (green).}
-\label{PowerSupply}
-\end{figure*}
+\begin{figure}
 
-\subsection{Gas Sensor Time Series Monitoring}
+\begin{minipage}[c][][t]{.5\textwidth}
+  \vspace*{\fill}
+  \centering
+  \includegraphics[width=6cm]{PowerSupply/4nodes.png}
+  \caption{k=4, W=5000, VT=0}
+  \includegraphics[width=6cm]{PowerSupply/36nodes.png}
+  \caption{k=36 Nodes, W=600, VT=0}
+    \includegraphics[width=6cm]{PowerSupply/36nodesProb.png}
+  \caption{k=36 Nodes, W=600, VT=18}
+\end{minipage}
+  \caption{In figues (a) and (b) The DLDA adaptation to a gradual concept drift is
+demonstrated on the power supply dataset by a comparison between the maximal error (over
+the nodes) in the local DLDA bound calculation (blue), to the true
+error (the norm of the difference) of the whole data aggregated from
+all of the nodes (green). In figure (c) PDLDA
+is demonstrated on the same dataset. In (c) the blue curve represent the
+fraction out of all of the nodes that are violated.}
+\label{PowerSupplyFigures}
+\end{figure}
+
+
+\subsubsection{Gas Sensor Time Series Monitoring} 
 Data in this experiment consists of measurements collected
 by an array of 16 chemical sensors recorded at a sampling
 rate of 100Hz for 24 hours, resulting in 8378504 data points for each sensor. 
 This dataset is described in \cite{bigGas}.
-At the first 12 hours the task is to obtain the exsitence of Carbon monoxide
-(CO) and from the 13'th hour the task is to obtain the exsitence of Methane. The
+At the first 12 hours the task is to obtain the existence of Carbon monoxide
+(CO) and from the 13'th hour the task is to obtain the existence of Methane. The
 change between the first task and the second is the CD that should be
 detected. In Fig \ref{BigGasShowData} a PCA projection of the data is shown.
 
@@ -496,16 +607,44 @@ detected. In Fig \ref{BigGasShowData} a PCA projection of the data is shown.
 \includegraphics[width=60mm]{BigGas/showData.png}
 \caption{2 dimension PCA projection of the data, before the CD (A),
 after the CD (B), and all of the data together with the LDA separator of each
-period (C). It can be seen that there is a differnce in the separator's
+period (C). It can be seen that there is a difference in the separator's
 direction between the periods.}
 \label{BigGasShowData}
 \end{figure}
 
+This dataset is a big dataset, enough to massively distributed. The drift in
+the dataset comes in ways, there is a gradual drift that comes for a change in
+temperature in the lab over the hours, and there is also an artificial sudden
+drift that comes from the change in the task after 12 hours. In Figure
+\ref{BigGasOverTime} PDLDA is demonstrated on the dataset.
+
+\begin{figure*}[ht!]
+\centering
+\includegraphics[width=\textwidth]{BigGas/overTime100k.png}
+\caption{Demonstration of PDLDA on the Gas Sensor dataset.}
+\label{BigGasOverTime}
+\end{figure*}
+A comparison between the true error (green) to the fraction of the nodes that 
+are violated in the current round (blue). 
+The experiment is configured for k=100 nodes, and the violation threshold is
+VT=80. 
+Two phenomenons can be obtained in this experiment.
+The first, the two lines are highly correlated --- the fraction of the violated
+nodes follows the true error. The second,  before the sudden concept drift (marked in vertical red line) there is a sync every 150 rounds. 
+After the concept drift there is a change every 50 rounds. 
+The last phenomena stretches over 1000 rounds where there is a mixture in the 
+sliding window between old (before the concept drift) data and the new 
+(after the concept drift) data. The second phenomena shows that the PDLDA
+detects and reacts to the sudden concept drift.
+
+
+\section*{Conclutions}
+\section*{Acknowledgement}
+Thanks for Moshe Gabel for the help to kicking off this research.
 \bibliographystyle{unsrt}
 \bibliography{bib}
 
 
-\clearpage
 \appendix
 \section{Appendix} \label{AppendixA}
 To find a convex subset C satisfying the condition of Eq. \ref{convex}. 
@@ -593,15 +732,17 @@ we get the bound:
 $||B_0^{-1}\delta||$ is convex in $\delta$
 \end{lemma}
 \begin{proof}
-By convexity definition, for a scalar $0 \leq \alpha \leq 1$: 
-\begin{equation} 
-\begin{split}
-& ||B_0^{-1}(\alpha\delta_1+(1-\alpha)\delta_2)|| \\
-= & ||\alpha B_0^{-1}\delta_1+(1-\alpha)B_0^{-1}\delta_2)|| \\
-\leq & \alpha||B_0^{-1}\delta_1||+(1-\alpha)||B_0^{-1}\delta_2||
-\end{split}
-\end{equation}
-Where the last inequality comes from the triangle inequality.
+Multiplition by $B_0^{-1}$ is a linear operation and taking norm is convex
+operation and therefore $||B_0^{-1}\delta||$ is convex in $\delta$.
+% By convexity definition, for a scalar $0 \leq \alpha \leq 1$: 
+% \begin{equation} 
+% \begin{split}
+% & ||B_0^{-1}(\alpha\delta_1+(1-\alpha)\delta_2)|| \\
+% = & ||\alpha B_0^{-1}\delta_1+(1-\alpha)B_0^{-1}\delta_2)|| \\
+% \leq & \alpha||B_0^{-1}\delta_1||+(1-\alpha)||B_0^{-1}\delta_2||
+% \end{split}
+% \end{equation}
+% Where the last inequality comes from the triangle inequality.
 \end{proof}
 
 We recall that:
@@ -613,22 +754,23 @@ $||B_0^{-1}L||$ is convex in $\Delta_s, \delta_p$
 and $\delta_q$.
 \end{lemma}
 \begin{proof}
-We show it from the definition of $L$ and convexity:
-\begin{alignat*} {2}
-& && ||\alpha\Delta_{s1}+(1-\alpha)\Delta_{s2} \\
-& && - p_0(\alpha\delta_{p1}+(1-\alpha)\delta_{p2})^T \\
-& && - (\alpha\delta_{p1}+(1-\alpha)\delta_{p2})p_0^T \\
-& && - q_0(\alpha\delta_{q1}+(1-\alpha)\delta_{q2})^T \\
-& && - (\alpha\delta_{q1}+(1-\alpha)\delta_{q2})q_0^T || \\
-& = && ||\alpha(\Delta_{s1} - p_0\delta_{p1}^T - \delta_{p1}p_0^T \\
-& && - q_0\delta_{q1}^T - \delta_{q1}q_0^T) \\
-& && + (1-\alpha)\Delta_{s2} - p_0\delta_{p2}^T - \delta_{p2}p_0^T \\
-& && - q_0\delta_{q2}^T - \delta_{q2}q_0^T)|| \\
-& \leq && \alpha||\Delta_{s1} - p_0\delta_{p1}^T - \delta_{p1}p_0^T \\
-& && - q_0\delta_{q1}^T - \delta_{q1}q_0^T|| \\
-& && + (1-\alpha)||\Delta_{s2} - p_0\delta_{p2}^T - \delta_{p2}p_0^T \\
-& && - q_0\delta_{q2}^T - \delta_{q2}q_0^T||
-\end{alignat*}
+$L$ is linear in the variables and therefore convex in theses variables.
+% We show it from the definition of $L$ and convexity:
+% \begin{alignat*} {2}
+% & && ||\alpha\Delta_{s1}+(1-\alpha)\Delta_{s2} \\
+% & && - p_0(\alpha\delta_{p1}+(1-\alpha)\delta_{p2})^T \\
+% & && - (\alpha\delta_{p1}+(1-\alpha)\delta_{p2})p_0^T \\
+% & && - q_0(\alpha\delta_{q1}+(1-\alpha)\delta_{q2})^T \\
+% & && - (\alpha\delta_{q1}+(1-\alpha)\delta_{q2})q_0^T || \\
+% & = && ||\alpha(\Delta_{s1} - p_0\delta_{p1}^T - \delta_{p1}p_0^T \\
+% & && - q_0\delta_{q1}^T - \delta_{q1}q_0^T) \\
+% & && + (1-\alpha)\Delta_{s2} - p_0\delta_{p2}^T - \delta_{p2}p_0^T \\
+% & && - q_0\delta_{q2}^T - \delta_{q2}q_0^T)|| \\
+% & \leq && \alpha||\Delta_{s1} - p_0\delta_{p1}^T - \delta_{p1}p_0^T \\
+% & && - q_0\delta_{q1}^T - \delta_{q1}q_0^T|| \\
+% & && + (1-\alpha)||\Delta_{s2} - p_0\delta_{p2}^T - \delta_{p2}p_0^T \\
+% & && - q_0\delta_{q2}^T - \delta_{q2}q_0^T||
+% \end{alignat*}
 \end{proof}
 
 We recall that:
@@ -646,12 +788,12 @@ From the definition of operator norm, we can rewrite the function as:
 & = && \max_{||u||=1}{\{||u^T \delta_p||^2\}} + \max_{||u||=1}{\{||u^T
 \delta_q||^2\}}
 \end{alignat*}
-Noticing that max over a fininte number of convex function is also a convex
+Noticing that max over a finite number of convex function is also a convex
 function end our proof.
 \end{proof}
 
 \begin{corollary}
-From lemmas \ref{delta}, \ref{L} and \ref{M} we can conclud that $\mathcal{G}$
+From lemmas \ref{delta}, \ref{L} and \ref{M} we can conclude that $\mathcal{G}$
 is convex.
 \end{corollary}
 

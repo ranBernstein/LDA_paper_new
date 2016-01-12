@@ -1,0 +1,33 @@
+Let $TV \in {0,1}$ stand for the indicator for True
+Violation, then  
+\begin{equation*}
+P_{TV} := P(TV = 1),
+\end{equation*}
+and let $v_i \in {0,1}$ stand for the indicator for a local violation in the
+i'th node. The probability for True Positive (TP) and False Positive (FP) in a
+node is:
+\begin{alignat*}{1}
+& P_{TP} := P(v_i=1 | TV=1) \\
+& P_{FP} := P(v_i=1 | TV=0)
+\end{alignat*}
+Let $V$ be the random variable of the number of local violations
+\begin{equation*}
+V := \sum_{i=1}^k v_i,
+\end{equation*}
+\begin{alignat*}{1}
+& B_{TP} := P(V=v | TV=1) \propto Bin(k,P_{TP}) \\
+& B_{FP} := P(V=v | TV=0) \propto Bin(k,P_{TF})
+\end{alignat*}
+We would like to monitor the probability for TV, i.e. $P(TV=1|V=v)$. Using
+Bayes' rule we can derive
+\begin{alignat*}{1}
+& P(TV=1|V=v) \\
+& = \frac{P(V=v, TV=1)}{P(V=v)}\\
+& = \frac{P(V=v|TV=1)P(TV=1)}{P(V=v)} \\
+& = \frac{P_{TV}B_{TP}}{P_{TV}B_{TP} + (1-P_{TV})B_{FP}}
+\end{alignat*}
+
+If we assume $P_{TP}=1$, it is simplfied to:
+\begin{equation*}
+P(TV=1|V=v) = \frac{B_{TP}}{P_{TV}B_{TP} + (1-P_{TV})B_{FP}}
+\end{equation*}

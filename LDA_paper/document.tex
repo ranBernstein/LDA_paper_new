@@ -39,20 +39,24 @@ Model Monitoring}
 \maketitle
 
 \begin{abstract}
-Linear Discriminant Analysis (LDA) is widely used for classification and
-dimensionality reduction in many fields. As data evolves, LDA models must be recomputed. 
-In distributed streaming settings, however, periodically recomputing the global model is
-wasteful: must be communicated new observations or model updates is required
-even when the model is, in practice, unchanged.
+Linear Discriminant Analysis (LDA) is a popular algorithm used for
+classification and dimensionality reduction in many fields. 
+When the data changes, LDA models must be recomputed. 
+One of our key measurements for success in this paper is outperforming
+a naive algorithm --- periodically recomputing the global model --- that is
+suboptimal: it communicates new observations or model updates even when the
+model is unchanged.
 We propose the first monitoring algorithm for LDA
-models of distributed data streams that guarantees a bounded model error. 
-It maintains an accurate estimate using a fraction of the communication by recomputing only
-when the precomputed model is sufficiently far from the
-(hypothetical) current global model. When the global model
-is stable, no communication is needed.
+models of distributed data streams and it guarantees a bounded model error.
+More precisely, we monitor the change in the angle of the linear classifier
+computed by the LDA formula by performing a local test that every node
+conducts on its own data: no communication is needed.
+Our monitoring algorithm maintains an accurate estimate using a fraction
+of the communication by recomputing only when the precomputed model is 
+sufficiently far from the current global model. 
 Experiments on real and synthetic datasets show that
 our approach reduces communication by up to two orders
-of magnitude while providing an accurate estimate of the
+of magnitude while maintaining an accurate estimate of the
 current global model in all nodes.
 \end{abstract}
 
@@ -62,7 +66,11 @@ they are not always strictly stationary, i.e., the data
 concept (underlying distribution of incoming data) drifts 
 unpredictably over time. This requires that these concept drifts be detected 
 in the data streams and recovered appropriately after the concept drift 
-is detected. This paper focuses on detecting concept drifts affecting binary 
+is detected. 
+Concept drift detection appears in many fields in the real life: fault detection and
+diagnosis,monitoring in biomedicine and industrial processes,  
+safety of complex systems, user modeling, etc \cite{basseville1993detection}.
+This paper focuses on detecting concept drifts affecting binary 
 classification models.
 We monitor the model itself; the alternative --- monitoring prediction
 accuracy --- is not always sufficient: we might be interested in the model's
@@ -108,7 +116,8 @@ classifier's \textit{model}.
 \subsection{Our Contribution}
 
 We describe Distributed Linear Discriminant Analysis (DLDA): a novel
-communication-efficient monitoring algorithm for LDA models of distributed, dynamic data streams. 
+communication-efficient monitoring algorithm for LDA models of distributed, dynamic data streams.
+We show how can we harness monitoring LDA's model for concept drift detection. 
 To the best of our knowledge, this is the first algorithm that monitors the
 model itself, rather than its prediction or fit. Given a previously computed
 global model, we derive local constraints on the local data at each node. A node only communicates
@@ -297,7 +306,7 @@ of the samples in a node, we can define the local drift to be:
 \\ & \delta_q^i:= q^i - q_0^i
 \end{alignat*}
 \begin{remark} \label{average}
-It easy to see that every global drift is the average of the local drifts:
+It is easy to see that every global drift is the average of the local drifts:
 \begin{alignat*}{1}
 & \Delta_s = \frac{1}{k} \sum \Delta_s^i, \\
 & \delta_p = \frac{1}{k} \sum \delta_p^i, \\
@@ -383,11 +392,11 @@ Now we can state a convex bound for our problem:
 \begin{lemma} \label{convexBound}
 If $\mathcal{G}$ is the set of triplets $(\Delta_s^i, \delta_p^i, \delta_q^i)$
  that satisfies the bound:
- \begin{equation*} \label{eq:convexBound}
+ \begin{equation} \label{eq:convexBound}
 \begin{split}
 ||B_0^{-1}\delta|| &+ (||w_0||+R_0)(||B_0^{-1}L||+||B_0^{-1}M||) \\ & \leq  R_0
 \end{split}
-\end{equation*}
+\end{equation}
 and satisfies the inequality:
  \begin{equation*} 
 ||B_0^{-1}\Delta|| < 1
@@ -434,10 +443,11 @@ From the Chernoff bound we get that, for some integer $z$
 & \leq \exp(-\frac{z^2}{2kP_{FP}(1-P_{FP})}) \\
 & \leq \epsilon.
 \end{alignat*}
-Choosing $z=\sqrt{2kP_{FP}(P_{FP}-1)\log(\epsilon)}$ makes the inequality an
-equality --- $\exp(-\frac{z^2}{2kP_{FP}(1-P_{FP})}) = \epsilon$. We denote
-Violation Threshold (VT) as $VT:=k*P_{FP}+z$, and therefore we get 
-$P(V > VT) < \epsilon$ for an approximately steady true error.
+Choosing $z':=\sqrt{2kP_{FP}(P_{FP}-1)\log(\epsilon)}$ makes the inequality an
+equality: $\exp(-\frac{z'^2}{2kP_{FP}(1-P_{FP})}) = \epsilon$. We denote
+the minimal number of violations that cause a sync as a violation threshold
+(VT) and it quantified by: $VT:=k*P_{FP}+z'$, and therefore we get $P(V > VT) <
+\epsilon$ for an approximately steady true error.
 We can state this simply by saying that, with high probability, $V > VT$
 indicates an increase in the global error and that becomes our rule for when to
 sync.
@@ -514,16 +524,19 @@ When window size $W$ is fixed, communication grows linearly with dimension $d$.
 	\caption{Communication as a function Of input dimension}
 	\label{Dimension}
 	\end{figure}
-\subsubsection{Window Size}
+\subsubsection{Window Size and Noise}
 Figure \ref{WindowSize} shows how communication decreases as a result
-of enlarging the window size $W$. 
-	\begin{figure}[h]
+of enlarging the window size $W$, that means that $W$ can compensate over other
+factors in the system that might increase the communication. One of those is
+Noise (that is quantified in our context with the standard deviation of the
+underlying distribution that the data was generated from).
+ \begin{figure}[h]
 	\centering
 	\includegraphics[width=60mm]{CommunicationOfFixedVsDrift/WindowSize.png}
 	\caption{Communication As Function Of Window Size}
 	\label{WindowSize}
 	\end{figure}
-\subsubsection{Noise}
+%\subsubsection{Noise}
 Figure \ref{Noise} shows normalized messages obtained at different
 noise magnitudes. As expected, the required to preserve a
 fixed error threshold increases along with data noise.
@@ -538,14 +551,13 @@ fixed error threshold increases along with data noise.
 \subsection{Real Data Experiments}
 In this section we will demonstrate the algorithm with 3 datasets. The first
 (newsgroups collection) is relatively small, and a small scale
-scenario is demonstrated on it using the deterministic DLDA. 
-\subsubsection{Messages Preference Monitoring}
-The USENET dataset is from \cite{usenetSource} and is described in
-\cite{usenet}.
-Text dataset that is simulates a stream of messages from three newsgroups
-(medicine, space, baseball) that are sequentially presented to a user, 
+scenario is demonstrated on it using the deterministic DLDA algorithm. 
+\subsubsection{Message Preference Monitoring --- Usenet}
+The USENET dataset is described in \cite{usenet}.
+This is a text dataset that simulates a stream of messages from three newsgroups
+(medicine, space, baseball); the messages are presented sequentially to a user, 
 who then labels them as interesting or junk, according to his personal interests. 
-Attribute values are binary indicating the presence or absence of the 128
+Attribute values are binary, indicating the presence or absence of the 128
 informative words. The drift occurs from an artificial change in the user's
 preference (from space to baseball). In Figure \ref{usenet} the behavior of the
 DLDA algorithm with $W=450$ is presented. The first 450 rounds over the data are for
@@ -643,18 +655,10 @@ fraction of violated nodes.}
 %     \label{materialflowChart}
 % \end{figure}
 
-\subsubsection{Gas Sensor Time Series Monitoring} 
-Data in this experiment consists of measurements collected
-by an array of 16 chemical sensors recorded at a sampling
-rate of 100Hz for 24 hours, resulting in 8378504 data points for each sensor. 
-This dataset is described in \cite{bigGas}.
-During the first 12 hours the task is to decide if there is carbon monoxide
-(CO), and from the 13th hour the task is to decide if there is methane. 
-The composition between these to tasks creates a dataset with a sudden concept
-drift in the attach point of the two.  
-In Fig \ref{BigGasShowData} a PCA projection of the data is shown.
 
-\begin{figure}[h]
+\subsubsection{Gas Sensor Time Series Monitoring} 
+
+\begin{figure}[h!]
 \centering
 \includegraphics[width=60mm]{BigGas/showData.png}
 \caption{Two-dimensional PCA projection of the gas sensor data, 
@@ -665,11 +669,6 @@ direction between the periods.}
 \label{BigGasShowData}
 \end{figure}
 
-This is a big dataset, and can be massively distributed. The drift in
-the dataset comes in two ways, there is a gradual drift that comes from 
-the change in temperature in the lab over the hours, and there is also an
-artificial sudden drift that comes from the switch of the tasks after 12 hours.
-In Figure \ref{BigGasOverTime} PDLDA is demonstrated on the dataset.
 
 \begin{figure*}[ht!]
 \centering
@@ -681,6 +680,23 @@ The experiment is configured for k=100 nodes, and the violation threshold is
 VT=80.}
 \label{BigGasOverTime}
 \end{figure*}
+Data in this experiment consists of measurements collected
+by an array of 16 chemical sensors recorded at a sampling
+rate of 100Hz for 24 hours, resulting in 8378504 data points for each sensor. 
+This dataset is described in \cite{bigGas}.
+During the first 12 hours the task is to decide if there is carbon monoxide
+(CO), and from the 13th hour the task is to decide if there is methane. 
+The composition between these to tasks creates a dataset with a sudden concept
+drift in the attach point of the two.  
+In Fig \ref{BigGasShowData} a PCA projection of the data is shown.
+
+
+This is a big dataset, and can be massively distributed. The drift in
+the dataset comes in two ways, there is a gradual drift that comes from 
+the change in temperature in the lab over the hours, and there is also an
+artificial sudden drift that comes from the switch of the tasks after 12 hours.
+In Figure \ref{BigGasOverTime} PDLDA is demonstrated on the dataset.
+
 In Figure \ref{BigGasOverTime} two phenomenons can be observed.
 First, the two lines are highly correlated --- the fraction of the violated
 nodes follows the true error. Second,  before the sudden concept drift 
@@ -693,15 +709,21 @@ the PDLDA detects and reacts to the sudden concept drift.
 
 
 \section*{Conclusions}
-We reduce communication by order of two magnitudes.
+We introduced the first monitoring algorithm for linear classifier model.
 As long as all of the nodes agree with their local test, the
-global model guaranteed to be valid. Our algorithm outperforms PER: it obtains a
-lower error for the same communication volume. We found a linear relationship between the
-dimension and communication. We evaluated our algorithm --- DLDA --- and its
-probabilistic version --- PDLDA --- on 3 real datasets. For a small number of nodes we used 
+global model guaranteed to be valid. 
+Our algorithm outperforms PER: it keeps smaller Euclidean distance between 
+the last computed model to the current true model with a lower volume of
+communication. 
+We empirically found a linear relationship between the dimension and
+communication, thing that might be explained also analytically 
+in future work. 
+We evaluated our algorithm --- DLDA --- and its probabilistic version --- PDLDA --- on 3 real datasets. For a small number of nodes we used 
 DLDA with its theoretical guarantee, and for a greater number of nodes we used
 PDLDA with its heuristic nature.
-\section*{Acknowledgement}
+We reduce communication by order of two magnitudes while maintaining a 
+valid model.
+ \section*{Acknowledgement}
 Thanks to Moshe Gabel for the help in kicking off this research.
 \bibliographystyle{unsrt}
 \bibliography{bib}
@@ -709,24 +731,23 @@ Thanks to Moshe Gabel for the help in kicking off this research.
 
 \appendix
 \section{Appendix} \label{AppendixA}
-To find a convex subset C satisfying the condition of Eq. \ref{convex}. 
-First we define operator norm:
+To find a convex subset C satisfying the condition of Eq. \ref{convex},
+We first define the operator norm:
 \begin{definition}
 Let $A$ be a matrix. Its operator norm, or
 spectral norm, hereafter just norm, is defined as:
 \begin{equation*}
-||A|| = \sup_{x \neq 0}\frac{||Ax||}{||x||} 
+||A|| = \sup_{x \neq 0}\frac{||Ax||}{||x||}.
 \end{equation*}
 \end{definition}
 
 \begin{lemma} \label{lemma:newman}
 If A is square and $||A|| < 1$, then
 \begin{equation*}
-||(I+A)^{-1}|| < \frac{1}{1-||A||}
+||(I+A)^{-1}|| < \frac{1}{1-||A||}.
 \end{equation*}
 \end{lemma}
-The proof for this lemma can be found in Gabel's paper
-\cite{gabel2015monitoring}.
+The proof for this lemma can be found in \cite{gabel2015monitoring}.
 
 \subsection{Convex Bound Proof}
 \begin{lemma}
@@ -740,15 +761,15 @@ inequality:
 \begin{split}
 ||w-w_0|| & = \ ||(B_0+\Delta)^{-1}(u_0+\delta) - B_0^{-1}u_0|| \\
 & < ||(B_0+\Delta)^{-1}\delta|| \\
-& \ \ + ||((B_0+\Delta)^{-1} - B_0^{-1})u_0||
+& \ \ + ||((B_0+\Delta)^{-1} - B_0^{-1})u_0||.
 \end{split}
 \end{equation}
 
-We split the last addition into two parts:
+We split the right side of the last inequality into two parts:
 \begin{equation}  \label{e1e2}
 \begin{split}
 & E_1:= ||(B_0+\Delta)^{-1}\delta|| \\
-& E_2:= ||((B_0+\Delta)^{-1} - B_0^{-1})u_0||
+& E_2:= ||((B_0+\Delta)^{-1} - B_0^{-1})u_0||.
 \end{split}
 \end{equation}
 If we assume that $||B_0^{-1}\Delta||\ \leq \ 1$, 
@@ -756,20 +777,20 @@ then from lemma \ref{lemma:newman} we get:
 \begin{equation} \label{e1e2In}
 \begin{split}
 & E_1 \leq \frac{||B_0^{-1}\delta||}{1-||B_0^{-1}\Delta||} \\
-& E_2 \leq  \frac{|| B_0^{-1}\Delta w_0||}{1-||B_0^{-1}\Delta||}
+& E_2 \leq  \frac{|| B_0^{-1}\Delta w_0||}{1-||B_0^{-1}\Delta||}.
 \end{split}
 \end{equation}
-From Cauchy-Schwarz inequality we get:
+From the Cauchy-Schwarz inequality we get:
 \begin{equation} \label{CS}
-||B_0^{-1}\Delta w_0|| \ \leq \ ||B_0^{-1}\Delta||||w_0||
+||B_0^{-1}\Delta w_0|| \ \leq \ ||B_0^{-1}\Delta||||w_0||.
 \end{equation}
-Substitute Eq. \ref{e1e2}, \ref{e1e2In} and \ref{CS} in Eq. \ref{in}, and we
+Substituting Eq. \ref{e1e2}, \ref{e1e2In} and \ref{CS} in Eq. \ref{in}, we
 get:
 \begin{equation}
 \begin{split}
 || w-w_0 \parallel & \leq \ E_1+E_2 \\
 & \leq \frac{||B_0^{-1}\delta|| + ||B_0^{-1}\Delta||||w_0||}{1 -||B_0^{-1}\Delta||} \\
-& \leq R_0
+& \leq R_0.
 \end{split}
 \end{equation}
 Losing the denominator:
@@ -781,20 +802,20 @@ From the triangle inequality we can rewrite:
 \begin{equation} \label{linQuad}
 ||B_0^{-1}\Delta|| \leq ||B_0^{-1}L||+||B_0^{-1}M||
 \end{equation}
-And finally, from combining inequalities \ref{lostDenom} and \ref{linQuad},
+And finally, combining inequalities \ref{lostDenom} and \ref{linQuad},
 we get that the bound is:
 \begin{alignat*}{2} \label{convexBound}
 &||B_0^{-1}\delta|| &+ (||w_0||+R_0)(||B_0^{-1}L||+||B_0^{-1}M||) && \\ 
-& \leq R_0 &&
+& \leq R_0. &&
 \end{alignat*}
 \end{proof}
 
 \begin{lemma} \label{delta}
-$||B_0^{-1}\delta||$ is convex in $\delta$
+$||B_0^{-1}\delta||$ is convex in $\delta$.
 \end{lemma}
 \begin{proof}
-Multiplition by $B_0^{-1}$ is a linear operation and taking norm is convex
-operation and therefore $||B_0^{-1}\delta||$ is convex in $\delta$.
+Multiplition by $B_0^{-1}$ is a linear operation and taking the norm is convex
+operation. Therefore $||B_0^{-1}\delta||$ is convex in $\delta$.
 % By convexity definition, for a scalar $0 \leq \alpha \leq 1$: 
 % \begin{equation} 
 % \begin{split}
@@ -808,7 +829,7 @@ operation and therefore $||B_0^{-1}\delta||$ is convex in $\delta$.
 
 We recall that:
 \begin{equation*} 
-L:= \Delta_S - p_0\delta_p^T - \delta_pp_0^T - q_0\delta_q^T - \delta_qq_0^T
+L:= \Delta_S - p_0\delta_p^T - \delta_pp_0^T - q_0\delta_q^T - \delta_qq_0^T.
 \end{equation*}
 \begin{lemma} \label{L}
 $||B_0^{-1}L||$ is convex in $\Delta_s, \delta_p$
@@ -836,7 +857,7 @@ $L$ is linear in the variables and therefore convex in theses variables.
 
 We recall that:
 \begin{equation*} 
-M:= - \delta_p\delta_p^T - \delta_q\delta_q^T
+M:= - \delta_p\delta_p^T - \delta_q\delta_q^T.
 \end{equation*}
 \begin{lemma} \label{M}
 $||B_0^{-1}M||$ is convex in $\delta_p$
@@ -845,12 +866,13 @@ and $\delta_q$.
 \begin{proof}
 From the definition of operator norm, we can rewrite the function as:
 \begin{alignat*} {2}
-||M|| & = && \max_{||u||=1}{\{u^T \delta_p\delta_p^T u\}} + \max_{||u||=1}{\{u^T \delta_q\delta_q^T u\}} \\
-& = && \max_{||u||=1}{\{||u^T \delta_p||^2\}} + \max_{||u||=1}{\{||u^T
-\delta_q||^2\}}
+||M|| & = && ||\max_{||u||=1}{\{u^T \delta_p\delta_p^T u\}} +
+\max_{||u||=1}{\{u^T \delta_q\delta_q^T u\}} ||\\
+& = && ||\max_{||u||=1}{\{||u^T \delta_p||^2\}} + \max_{||u||=1}{\{||u^T
+\delta_q||^2\}}||
 \end{alignat*}
-Noticing that max over a finite number of convex function is also a convex
-function end our proof.
+We observe that max over a finite number of convex function is also a convex
+function and taking a norm keeps it convex. This concludes our proof.
 \end{proof}
 
 \begin{corollary}

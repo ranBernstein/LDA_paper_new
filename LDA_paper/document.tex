@@ -21,9 +21,8 @@
 \usepackage{pgfplotstable}
 
 \usepackage[demo]{graphicx}
-\usepackage{caption}
+%\usepackage{caption}
 \usepackage{subcaption}
-
 
 \newtheorem{lemma}{Lemma}
 \newtheorem{definition}{Definition}
@@ -50,14 +49,14 @@ We propose the first monitoring algorithm for LDA
 models of distributed data streams and it guarantees a bounded model error.
 More precisely, we monitor the change in the angle of the linear classifier
 computed by the LDA formula by performing a local test that every node
-conducts on its own data: no communication is needed.
+conducts on its own data: no communication is needed for the test.
 Our monitoring algorithm maintains an accurate estimate using a fraction
 of the communication by recomputing only when the precomputed model is 
 sufficiently far from the current global model. 
 Experiments on real and synthetic datasets show that
 our approach reduces communication by up to two orders
 of magnitude while maintaining an accurate estimate of the
-current global model in all nodes.
+current global model.
 \end{abstract}
 
 \section{Introduction}
@@ -68,7 +67,7 @@ unpredictably over time. This requires that these concept drifts be detected
 in the data streams and recovered appropriately after the concept drift 
 is detected. 
 Concept drift detection appears in many fields in the real life: fault detection and
-diagnosis,monitoring in biomedicine and industrial processes,  
+diagnosis, monitoring in biomedicine, industrial processes,  
 safety of complex systems, user modeling, etc \cite{basseville1993detection}.
 This paper focuses on detecting concept drifts affecting binary 
 classification models.
@@ -134,31 +133,26 @@ time a single node has a violation.
 
 \section{Related Work}
 \subsection{Distributed Monitoring}
-The last decade has witnessed a sharp increase in work on imposing local
-conditions for monitoring the value of a function defined over distributed nodes. While the general problem is NP-complete
-\cite{keren2014geometric}, considerable progress has been made for real-life problems. Most work dealt with the simpler cases of
-linear functions \cite{keralapura2006communication, kashyap2008efficient}, as well as monotonic
-functions \cite{michel2005klee}.
-Some papers addressed non-linear problems, e.g., monitoring
+In the last few years there is an increase in work on defining local tests 
+for monitoring a function that depends on data that is distributed over nodes.
+Most of the work so far is with simpler functions such as linear \cite{keralapura2006communication, kashyap2008efficient}, 
+and monotonic \cite{michel2005klee}.
+Examples for non-linear functions monitoring are: 
 the value of a single-variable polynomial \cite{shah2008handling}, and analysis
 of eigenvalue perturbation \cite{huang2007communication}. 
-In \cite{sharfman2007geometric} a geometric approach for monitoring arbitrary functions over distributed
-streams was proposed, and later extended and generalized
-\cite{keren2012shape,lazerson2015monitoring}. However, nearly all work on geometric monitoring addressed
-functions which are either polynomials (typically quadratic), or defined by
-compositions of polynomial with simple functions such as medians and quotients. 
+A generic geometric approach for monitoring arbitrary functions is proposed in
+\cite{sharfman2007geometric}, and later extended and generalized
+\cite{keren2012shape,lazerson2015monitoring}. 
 The closest work to ours is on Least Square Regression
 \cite{gabel2015monitoring}, and we will harness some of their mathematical
 lemmas for our LDA problem. To the best of our knowledge, the LDA monitoring
 problem addressed in this paper has never been addressed over a distributed
 setting.
-Note that the monitored function contains the highly complicated
-operation of matrix inversion, which is not linear or convex,
-and which, when written explicitly, becomes intractable even
-for relatively low dimensions (e.g., the analytic expression
-for the inverse of a $20 \times 20$ matrix involves polynomials with
-$20!$ monomials). Therefore, a straightforward application of
-previous work on geometric monitoring is impossible.
+A great part of the difficulty to monitor the LDA's formula comes from the need
+to monitor matrix inversion, which is not linear or convex,
+and the number of monomials explodes exponentially when written explicitly
+(what makes it not feasible to apply on it one of the polynom tracking
+algorithms).
 \subsection{Concept Drift Detection}
 
 Popular approaches for detecting concept drift identify the change point
@@ -859,6 +853,7 @@ We recall that:
 \begin{equation*} 
 M:= - \delta_p\delta_p^T - \delta_q\delta_q^T.
 \end{equation*}
+
 \begin{lemma} \label{M}
 $||B_0^{-1}M||$ is convex in $\delta_p$
 and $\delta_q$.

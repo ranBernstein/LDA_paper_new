@@ -268,94 +268,151 @@ global model while guaranteeing a bounded global model.
 \keywords{ACM proceedings; \LaTeX; text tagging}
 
 \section{Introduction}
-A common challenge when mining data streams is that
-they are not always strictly stationary, i.e., the data
-concept (underlying distribution of incoming data) drifts 
-unpredictably over time. This requires that these concept drifts be detected 
-in the data streams and recovered appropriately after the concept drift 
-is detected. 
-Concept drift detection appears in many fields: fault detection and
-diagnosis, monitoring in biomedicine, industrial processes,  
-safety of complex systems, and user modeling, to name a few
-\cite{basseville1993detection}.
+In this work, we address the problem of mining data streams when the streaming data is {\em distributed} over a large number of nodes. We assume that the data generation process and the prediction problem is the same for all nodes. An important challenge, associated  with real life problems, is that the distribution of the streaming data is not stationary, notably, it can change over time. The change could
+be caused by a system fault (e.g. sensor failure) or by a transition in the target concept.
+Classical examples of a prediction problem that involves the target concept change are user preference prediction
+and fraud detection. In the former, the choices of the user can change over time; in the latter, the fraudulent
+transactions change constantly to avoid detection. In both, the target concept changes over time, and if not
+detected, renders the prediction model inadequate.
 
-\par LDA \cite{fisher1936use}, is used in computer vision
-\cite{turk1991eigenfaces}, pattern recognition \cite{duda2012pattern} and
-for a lot of applications, even such as Earth Science
-\cite{tahmasebi2010application}.
-LDA seeks for a linear combination of features that
-characterize or separate two or more classes of objects or events.
-The resulting combination may be used as a linear classifier, or, 
-more commonly, for dimensionality reduction before later classification.
+Methods that detect changes in data over time are referred to as {\em concept drift detection} or {\em change-point detection}. A large volume of work has been done on these topics 
+(see e.g. ~\cite{basseville1993detection,brodsky2013nonparametric,ChenGupta2000,baena2006early,klinkenberg2000detecting,
+wang2015concept,gama2004learning,dries2009adaptive,wang2015concept,icml2014c2_harel14,Nishida2007} for in-depth survey of the field). However, the problem that we address here has not been approached yet and it is distinct from previous work in the following important aspects:
+\begin{description}
+\item[Concept Change Detection:] The generating distribution of the data could change due to various reasons. Some of them will affect the prediction model and some of them will not, even though these changes could be detected as a distribution switch (by change-point methods \cite{basseville1993detection,brodsky2013nonparametric,ChenGupta2000}). In this work, we are only concerned with the changes of the model itself, while most of the previous work do not make this distinction.
+%We address target concept change detection - look for the change that is correlated with the prediction problem as oppose to any change in the generating distribution (a statistical problem)
+\item[Model-Based Monitoring] In this work we focus on monitoring the classification models. Most previous work
+ on concept drift detection~\cite{baena2006early,gama2004learning,Nishida2007}, focusing  on classification settings, are error-based
+ (they utilize classification error rates to draw conclusion about the change of the distribution).
+ Here, we propose to monitor the change in the {\em model} as opposed to errors in classification.
+ Monitoring the  model and not the errors has an important benefit, which is detecting the drift before
+ the prediction error occurs.
 
-\par
-This paper focuses on detecting concept drifts affecting binary 
-classification models.
-We monitor the model itself; the alternative --- monitoring prediction
-accuracy --- is not always sufficient: we might be interested in the model's
-coefficients, rather than its classifications, and early detection of a
-required change in the angle of a linear classifier allows us to adjust 
-the model to the new data even before errors occur.
-We monitor a linear classifier. At a first glance the reader may doubt the
-classification power of a linear model these days, but we see at this work the
-foundation for a series of works that will monitor more rich and complex
-models, such as linear classifiers ensemble \cite{osadchy2015k}.
-\subsection{Linear Discriminant Analysis}
-\\\par In LDA the problem is approached by assuming that the conditional probability
-density functions $P(\vec x|y=p)$ and $P(\vec x|y=q)$ are both normally distributed with 
-mean and covariance parameters $\left(\vec \mu_p, B_p\right)$ and 
-$\left(\vec \mu_q, B_q\right)$, for two target classes p and q respectively.
-${(x_1,y_1),\ldots,(x_n,y_n)}$ are I.I.D samples, $x_i \in \mathbb{R}^d$
-and $y_i \in \{0,1\}$. 
+\item[Distributed Setting]
+    We are the first to look at the concept drift detection in streaming data in distributed setting.
+    We assume that the model is learned centralized after all nodes synchronize their data. This process requires
+    a lot of resources and communication. Thus the goal is to reduce the number of such synchronisation.
+    If the system performs synchronization and retraining periodically, then it can either miss the moment of the
+    target change (which leads to erroneous predictions) or performs redundant synchronizations (when the model
+    is still valid), resulting in unnecessary communication costs.  To resolve this problem, we define local
+    constraints, that if satisfied, guarantee the validity of the global prediction model.
+\end{description}
 
-% Let ${(x_1,y_1),\ldots,(x_n,y_n)}$ be a set of n observation pairs of $d < n$
-% independent variables and one dependent variable, where $x_i$ are column vectors in $\mathbb{R}^d$, and $y_i$ are the
-% corresponding classes. 
-We seek a linear transformation (model), $w \in \mathbb{R}^d $,
-that maximizes the separation between the classes, where the separation is
-defined to be the ratio of the variance between the classes to the variance
-within the classes:
-\begin{equation*}
-S := \frac{\sigma^2_{between}}{\sigma^2_{within}} = \frac{(w \dot (\mu_p -
-\mu_q))^2}{w^T(B_p+B_q)w}.
-\end{equation*}
-Under this assumption, the Bayes optimal decision criterion is a threshold on the 
-dot product
-\begin{equation*} \label{eq:decision}
-w \cdot x > c
-\end{equation*}
-for some threshold constant c, where
-\begin{equation} \label{eq:w}
-w \propto (B_p+B_q)^{-1}(\mu_p - \mu_q)
-\end{equation}
-\begin{equation} \label{eq:c}
-c = \frac{1}{2}(T-{\mu_p}^T S_p^{-1} {\mu_p}+{\mu_q}^T S_q^{-1} {\mu_q}).
-\end{equation}
-In this work we monitor $w$, and will refer it as the
-classifier's \textit{model}.
+
+Similarly to~\cite{icml2014c2_harel14}, we link the concept drift detection method with the hypothesis class
+and the training algorithm (The former is obvious, the latter is not. Designing a more general
+method for concept drift detection that is independent of the training algorithm of the classifier
+is left for future work). In this paper we focus on linear binary classifiers as a hypothesis class, and
+Linear Fisher Discriminant \cite{fisher1936use} as the learning algorithm.
+
+Linear classifiers well analysed, which allows to base new schemes on them more smoothly.
+However, linear classifiers are also very popular in real applications and serve as a platform to more
+complex classifiers, such as ensemble models \cite{Deva, eSVM},
+neural networks~\cite{osadchy2015k}, and even deep architectures\cite{ROSS}.
+
 \subsection{Our Contribution}
 
-We propose Distributed Linear Discriminant Analysis (DLDA): a novel
-communication-efficient monitoring algorithm for LDA models of distributed, 
-dynamic data streams.
-We show how can we use the monitoring of the LDA model for concept drift
-detection.
-To the best of our knowledge, this is the first algorithm that monitors the
-model itself, rather than its prediction or fit. Given a previously computed
-global model, we derive local constraints on the local data at each node. A node only communicates
-if its constraint is broken. These constraints guarantee that
-if no node communicates, the global hypothetical model is
-sufficiently close to the precomputed model.
-Evaluation on three real datasets shows that it reduces communication by up to
-two orders of magnitude. 
-We also present and demonstrate and demonstrate 
-Probabilistic Distributed LDA Monitoring (PDLDA). This framework harnesses the 
-distributed nature of the system, and decides to sync according 
-to the number of violations over the entire set of nodes, rather than syncing every
-time a single node has a violation.
-To the best of our knowledge, the LDA monitoring
-problem addressed in this paper has never been addressed over a distributed
-setting.
+We propose a Distributed Linear Discriminant Analysis (DLDA), which is a novel
+communication-efficient algorithm for target concept change detection associated with linear
+classification model, learned using LDA and applied to distributed, dynamic data streams.
+
+To the best of our knowledge, this is the first algorithm that
+1) monitors the model itself, rather than classification errors and 2) detects concept drift in streaming data
+over a distributed setting.
+
+The proposed algorithm has strong theoretical guarantees of
+correctness and it is shown to reduce communication volume by up to
+two orders of magnitude on three completely different real data sets.
+
+%A common challenge when mining data streams is that
+%they are not always strictly stationary, i.e., the data
+%concept (underlying distribution of incoming data) drifts
+%unpredictably over time. This requires that these concept drifts be detected
+%in the data streams and recovered appropriately after the concept drift
+%is detected.
+%Concept drift detection appears in many fields: fault detection and
+%diagnosis, monitoring in biomedicine, industrial processes,
+%safety of complex systems, and user modeling, to name a few
+%\cite{basseville1993detection}.
+%
+%\par LDA \cite{fisher1936use}, is used in computer vision
+%\cite{turk1991eigenfaces}, pattern recognition \cite{duda2012pattern} and
+%for a lot of applications, even such as Earth Science
+%\cite{tahmasebi2010application}.
+%LDA seeks for a linear combination of features that
+%characterize or separate two or more classes of objects or events.
+%The resulting combination may be used as a linear classifier, or,
+%more commonly, for dimensionality reduction before later classification.
+%
+%\par
+%This paper focuses on detecting concept drifts affecting binary
+%classification models.
+%We monitor the model itself; the alternative --- monitoring prediction
+%accuracy --- is not always sufficient: we might be interested in the model's
+%coefficients, rather than its classifications, and early detection of a
+%required change in the angle of a linear classifier allows us to adjust
+%the model to the new data even before errors occur.
+%We monitor a linear classifier. At a first glance the reader may doubt the
+%classification power of a linear model these days, but we see at this work the
+%foundation for a series of works that will monitor more rich and complex
+%models, such as linear classifiers ensemble \cite{osadchy2015k}.
+%\subsection{Linear Discriminant Analysis}
+%\\\par In LDA the problem is approached by assuming that the conditional probability
+%density functions $P(\vec x|y=p)$ and $P(\vec x|y=q)$ are both normally distributed with
+%mean and covariance parameters $\left(\vec \mu_p, B_p\right)$ and
+%$\left(\vec \mu_q, B_q\right)$, for two target classes p and q respectively.
+%${(x_1,y_1),\ldots,(x_n,y_n)}$ are I.I.D samples, $x_i \in \mathbb{R}^d$
+%and $y_i \in \{0,1\}$.
+%
+%% Let ${(x_1,y_1),\ldots,(x_n,y_n)}$ be a set of n observation pairs of $d < n$
+%% independent variables and one dependent variable, where $x_i$ are column vectors in $\mathbb{R}^d$, and $y_i$ are the
+%% corresponding classes.
+%We seek a linear transformation (model), $w \in \mathbb{R}^d $,
+%that maximizes the separation between the classes, where the separation is
+%defined to be the ratio of the variance between the classes to the variance
+%within the classes:
+%\begin{equation*}
+%S := \frac{\sigma^2_{between}}{\sigma^2_{within}} = \frac{(w \dot (\mu_p -
+%\mu_q))^2}{w^T(B_p+B_q)w}.
+%\end{equation*}
+%Under this assumption, the Bayes optimal decision criterion is a threshold on the
+%dot product
+%\begin{equation*} \label{eq:decision}
+%w \cdot x > c
+%\end{equation*}
+%for some threshold constant c, where
+%\begin{equation} \label{eq:w}
+%w \propto (B_p+B_q)^{-1}(\mu_p - \mu_q)
+%\end{equation}
+%\begin{equation} \label{eq:c}
+%c = \frac{1}{2}(T-{\mu_p}^T S_p^{-1} {\mu_p}+{\mu_q}^T S_q^{-1} {\mu_q}).
+%\end{equation}
+%In this work we monitor $w$, and will refer it as the
+%classifier's \textit{model}.
+%\subsection{Our Contribution}
+%
+%We propose Distributed Linear Discriminant Analysis (DLDA): a novel
+%communication-efficient monitoring algorithm for LDA models of distributed,
+%dynamic data streams.
+%We show how can we use the monitoring of the LDA model for concept drift
+%detection.
+%To the best of our knowledge, this is the first algorithm that monitors the
+%model itself, rather than its prediction or fit. Given a previously computed
+%global model, we derive local constraints on the local data at each node. A node only communicates
+%if its constraint is broken. These constraints guarantee that
+%if no node communicates, the global hypothetical model is
+%sufficiently close to the precomputed model.
+%Evaluation on three real datasets shows that it reduces communication by up to
+%two orders of magnitude.
+%We also present and demonstrate and demonstrate
+%Probabilistic Distributed LDA Monitoring (PDLDA). This framework harnesses the
+%distributed nature of the system, and decides to sync according
+%to the number of violations over the entire set of nodes, rather than syncing every
+%time a single node has a violation.
+%To the best of our knowledge, the LDA monitoring
+%problem addressed in this paper has never been addressed over a distributed
+%setting.
+
 
 \section{Related Work}
 \subsection{Distributed Monitoring}
@@ -398,7 +455,44 @@ the SVM error for detection. DDM, EDDM, LFR and SVM related approaches focus
 their analysis on the error and not on the model itself, and do not supply a
 theoretical guarantee on the validity of the global (of distributed setting) 
 model of a specific classification algorithm (such as LDA in our case).
+\subsection{Linear Discriminant Analysis}%\\ \par
+LDA seeks for a linear combination of features that
+characterize or separate two or more classes of objects or events.
+The resulting combination may be used as a linear classifier, or,
+more commonly, for dimensionality reduction before later classification.
 
+In LDA the problem is approached by assuming that the conditional probability
+density functions $P(\vec x|y=p)$ and $P(\vec x|y=q)$ are both normally distributed with
+mean and covariance parameters $\left(\vec \mu_p, B_p\right)$ and
+$\left(\vec \mu_q, B_q\right)$, for two target classes p and q respectively.
+${(x_1,y_1),\ldots,(x_n,y_n)}$ are I.I.D samples, $x_i \in \mathbb{R}^d$
+and $y_i \in \{0,1\}$.
+
+% Let ${(x_1,y_1),\ldots,(x_n,y_n)}$ be a set of n observation pairs of $d < n$
+% independent variables and one dependent variable, where $x_i$ are column vectors in $\mathbb{R}^d$, and $y_i$ are the
+% corresponding classes.
+We seek a linear transformation (model), $w \in \mathbb{R}^d $,
+that maximizes the separation between the classes, where the separation is
+defined to be the ratio of the variance between the classes to the variance
+within the classes:
+\begin{equation*}
+S := \frac{\sigma^2_{between}}{\sigma^2_{within}} = \frac{(w \dot (\mu_p -
+\mu_q))^2}{w^T(B_p+B_q)w}.
+\end{equation*}
+Under this assumption, the Bayes optimal decision criterion is a threshold on the
+dot product
+\begin{equation*} \label{eq:decision}
+w \cdot x > c
+\end{equation*}
+for some threshold constant c, where
+\begin{equation} \label{eq:w}
+w \propto (B_p+B_q)^{-1}(\mu_p - \mu_q)
+\end{equation}
+\begin{equation} \label{eq:c}
+c = \frac{1}{2}(T-{\mu_p}^T S_p^{-1} {\mu_p}+{\mu_q}^T S_q^{-1} {\mu_q}).
+\end{equation}
+In this work we monitor $w$, and will refer it as the
+classifier's \textit{model}.
  
 \section{Theoretical Foundation}
 \subsection{Problem Definition}
@@ -421,17 +515,23 @@ Given an error threshold $T$, our goal is to raise an alert if
 \begin{equation} \label{eq:coneCritiria}
 \frac{<w,w_0>}{\parallel w \parallel \parallel w_0 \parallel}  < T.
 \end{equation}
-Due to the complexity of the inequality \ref{eq:coneCritiria},
-we will monitor a relaxation of it: we will monitor the maximal volume sphere
-around $w_0$ that resides completely inside the cone from Equation~\ref{eq:coneCritiria}. 
+Due to the complexity of Eq. \ref{eq:coneCritiria},
+we will monitor a simpler problem that its solution also satisfies
+Eq. \ref{eq:coneCritiria}: the maximal volume sphere that $w_0$ is its center
+that resides completely inside the cone from Eq. ~\ref{eq:coneCritiria}.
 This sphere is defined by
 \begin{equation} \label{eq:critiria}
 \parallel w-w_0 \parallel \  >  R_0,
 \end{equation}
-where $R_0 := \  \parallel w_0 \parallel \sqrt{1-T^2}$ is the maximal radius.
+where $R_0 := \  \parallel w_0 \parallel \sqrt{1-T^2}$ is its radius.
 When $w_0$ and $w$ norms do not change significantly \ref{eq:coneCritiria} and
-\ref{eq:critiria} match. Empirical testing of their difference has showed that
-they are interchangeable for the concept drift detection purpose.
+\ref{eq:critiria} match (a small angle between unit vectors is
+equivalent to a small norm of the subtraction between them).
+Empirical testing of the difference between Eq. \ref{eq:coneCritiria} and
+Eq. \ref{eq:critiria} has showed that they are almost interchangeable for the
+purpose of concept drift detection, i.e., when data changes there is a high
+correlation between the values of $1-\frac{<w,w_0>}{\parallel w \parallel
+\parallel w_0 \parallel}$ and $\parallel w-w_0 \parallel $.
 
 \subsection{Monitoring Distributed LDA With Convex Subsets}
 Monitoring distributed LDA models is difficult because the
@@ -620,13 +720,22 @@ and satisfies the inequality:
 The proof of lemma \ref{convexBound} is given in Appendix A.
 
 \section{Method}
+In this section we will present two frameworks for LDA model monitoring that use
+bound \ref{eq:convexBound}. In both of the frameworks, every node runs the same
+update algorithm as detailed in Alg. \ref{NodeUpdate}. 
+The frameworks differ in their violation recovery policy. 
+The first --- Distributed LDA Monitoring (DLDA) -- will sync in a round that 
+at least one node has reported a violation in it as it detailed in Alg.
+\ref{DLDA}.
+The second --- Probabilistic Distributed LDA Monitoring (PDLDA) -- will sync in
+a round that the number of violations in it is above a certain threshold.
+The calculation of this threshold is presented in the subsection below.
 
-
-$x_{old}^i(p)$ and $x_{old}^i(q)$ are the oldest samples from each class in the
-sliding window of the i'th node.
 
 \begin{algorithm}
-\caption{Node i update with new samples x; y.}\label{DLDA}
+\caption{Node i update with new samples x; y.
+\\$x_{old}^i(p)$ and $x_{old}^i(q)$ are the oldest samples from each class in the
+sliding window of the i'th node.}\label{NodeUpdate}
 \begin{algorithmic}[1]
 \Procedure{Update}{}
 \If {$y$ is class P} 
@@ -644,14 +753,28 @@ $||B_0^{-1}\delta||+ (||w_0||+R_0)(||B_0^{-1}L||+||B_0^{-1}M||) $ \par
 \hskip\algorithmicindent $>R_0$} 
 \end{varwidth}
 \State Report violation to coordinator
-\State Recive new global $w_0$, $u_0$
+\State Receive new global $w_0$, $u_0$
 \State $(S_0^i,p_0^i,q_0^i) = (S^i,p^i,q^i)$
 \EndIf
 
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
-\subsection{Distributed LDA Monitoring}
+
+\begin{algorithm}
+\caption{Coordinator violation resolution algorithm.}\label{DLDA}
+\begin{algorithmic}[1]
+\Procedure{Sync}{}
+\If {One of the nodes has reported for violation} 
+\State Receive from every node $i$ the triplet 
+\State $S^i = S^i +xx^T - x_{old}^i(p)*(x_{old}^i(p))^T$
+\Else 
+\State $q^i = q^i + x -x_{old}^i(q)$
+\State $S^i = S^i +xx^T - x_{old}^i(q)*(x_{old}^i(q))^T$
+\EndIf
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
 
 \subsection{Probabilistic Distributed LDA Monitoring}
 As it will be seen in the evaluation section, DLDA is too strict when handeling

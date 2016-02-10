@@ -191,29 +191,23 @@ email: {\texttt{jsmith@affiliation.org}}) and Julius P.~Kumquat
 
 \maketitle
 \begin{abstract}
-Linear Discriminant Analysis (LDA) is a popular algorithm used for
-classification and dimensionality reduction in many fields. 
-However, when the data changes, LDA models must be recomputed, incurring 
-communication costs. 
-% One of our key measurements for success in this paper is outperforming
-% a naive algorithm --- periodically recomputing the global model --- that is
-% suboptimal: it communicates new observations or model updates even when the
-% model is unchanged.
-We propose the first monitoring algorithm for LDA
-models of distributed data streams. 
-It differs from other monitoring algorithms in that it monitors the model itself
-rather than its prediction or fit.
-%and it guarantees a bounded model error.
-More precisely, the algorithm monitors the change in the angle of the linear
-classifier computed by the LDA formula by performing a local test that every node
-conducts on its own data: no communication is needed for the test.
-Our monitoring algorithm maintains an accurate estimate of the current global
-model using a fraction of the communication by recomputing only when the
-precomputed model is sufficiently far from the current global model. 
-Experiments on real and synthetic datasets show that
-our approach reduces communication by up to two orders
-of magnitude and outperforms the naive algorithm the periodically computes the
-global model while guaranteeing a bounded global model.
+Real systems for mining dynamic data streams should be able to detect changes that affect the 
+accuracy of the global model. The majority of previous work addressed the centralized settings 
+and proposed solutions, based on the statistics of error rates in the data stream.
+In this work, we focus on distributed settings. 
+Model training in a distributed environment 
+requires centralizing the data from all nodes (synchronization), which is very
+costly in term of communication.
+In order to minimize the communication, a monitoring algorithm should be done locally at each node, 
+while preserving the validity of the global model. 
+We propose a first communication-efficient algorithm for monitoring a classification model over 
+distributed, dynamic data streams. Linear Discriminant Analysis (LDA) is a popular algorithm 
+used for classification and dimensionality reduction in many fields, thus we use LDA as our 
+classification model. 
+Our algorithm has strong theoretical guarantees of correctness and it is shown empirically to 
+reduce communication volume by up to two orders of magnitude on three completely different 
+real data sets. Moreover, our approach monitors the classification model itself as opposed 
+to its errors, which allows to detect the change before the error occurs.
 \end{abstract}
 
 
@@ -268,47 +262,36 @@ global model while guaranteeing a bounded global model.
 \keywords{ACM proceedings; \LaTeX; text tagging}
 
 \section{Introduction}
-In this work, we address the problem of mining data streams when the streaming data is {\em distributed} over a large number of nodes. We assume that the data generation process and the prediction problem is the same for all nodes. An important challenge, associated  with real life problems, is that the distribution of the streaming data is not stationary, notably, it can change over time. The change could
-be caused by a system fault (e.g. sensor failure) or by a transition in the target concept.
-Classical examples of a prediction problem that involves the target concept change are user preference prediction
-and fraud detection. In the former, the choices of the user can change over time; in the latter, the fraudulent
-transactions change constantly to avoid detection. In both, the target concept changes over time, and if not
-detected, renders the prediction model inadequate.
+In this work, we address the problem of mining data streams when the streaming data is {\em distributed} over a large number of nodes. We assume that the data generation process and the prediction problem is the same for all nodes. An important challenge, associated  with real life problems, is that the distribution of the streaming data is not stationary, notably, it can change over time. The change could be caused by a system fault (e.g. sensor failure) or by a transition in the target concept. Classical examples of a prediction problem that involves target concept change are user preference prediction and fraud detection. In the former, the choices of the user can change over time; in the latter, the fraudulent transactions change constantly to avoid detection. In both, the target concept changes over time, and if not detected, renders the prediction model inadequate.
 
-Methods that detect changes in data over time are referred to as {\em concept drift detection} or {\em change-point detection}. A large volume of work has been done on these topics 
-(see e.g. ~\cite{basseville1993detection,brodsky2013nonparametric,ChenGupta2000,baena2006early,klinkenberg2000detecting,
-wang2015concept,gama2004learning,dries2009adaptive,wang2015concept,icml2014c2_harel14,Nishida2007} for in-depth survey of the field). However, the problem that we address here has not been approached yet and it is distinct from previous work in the following important aspects:
+Methods that detect changes in data over time are referred to as {\em concept drift detection} or {\em change-point detection}. A large volume of work has been done on these topics (see e.g.~\cite{basseville1993detection,brodsky2013nonparametric,ChenGupta2000,Tsymbal,Gama2014} for in-depth survey of the field).
+%However, the problem definition that we address here has not been approached yet and it is distinct from previous work in the following important aspects:
+The solutions, proposed in previous work, cover different forms of change in the data, i.e. the input data characteristics, or the relation between the input data and the target variable, or both. Some forms of change will influence the prediction model and some will not  (even though these changes could be detected as a distribution switch.) In this work, we are only concerned with the changes that affect the model.%, while most of the previous work do not make this distinction.
+
+Our method is distinct from the previous work in the following important aspects:
 \begin{description}
-\item[Concept Change Detection:] The generating distribution of the data could change due to various reasons. Some of them will affect the prediction model and some of them will not, even though these changes could be detected as a distribution switch (by change-point methods \cite{basseville1993detection,brodsky2013nonparametric,ChenGupta2000}). In this work, we are only concerned with the changes of the model itself, while most of the previous work do not make this distinction.
-%We address target concept change detection - look for the change that is correlated with the prediction problem as oppose to any change in the generating distribution (a statistical problem)
-\item[Model-Based Monitoring] In this work we focus on monitoring the classification models. Most previous work
- on concept drift detection~\cite{baena2006early,gama2004learning,Nishida2007}, focusing  on classification settings, are error-based
- (they utilize classification error rates to draw conclusion about the change of the distribution).
- Here, we propose to monitor the change in the {\em model} as opposed to errors in classification.
- Monitoring the  model and not the errors has an important benefit, which is detecting the drift before
- the prediction error occurs.
+\item[Model-Based Monitoring] In this work, we focus on monitoring a classification model. Most previous work on concept drift detection~\cite{baena2006early,gama2004learning,Nishida2007}, concerned with classification, are error-based  (they utilize classification error rates to draw conclusion about the change of the distribution).  Here, we propose to monitor the change in the {\em model} itself as opposed to errors in classification.  Monitoring the  model and not the errors has an important benefit, which is detecting the drift before  the prediction error occurs.
 
 \item[Distributed Setting]
-    We are the first to look at the concept drift detection in streaming data in distributed setting.
-    We assume that the model is learned centralized after all nodes synchronize their data. This process requires
-    a lot of resources and communication. Thus the goal is to reduce the number of such synchronisation.
-    If the system performs synchronization and retraining periodically, then it can either miss the moment of the
-    target change (which leads to erroneous predictions) or performs redundant synchronizations (when the model
-    is still valid), resulting in unnecessary communication costs.  To resolve this problem, we define local
-    constraints, that if satisfied, guarantee the validity of the global prediction model.
+    Concept drift has been actively studied in centralized settings. We are one of the very few works \cite{AngGZPH13} that detects concept drift in a distributed environment, which is a critical part of a real big data system.
+    In such systems, data is distributed over a large number of nodes and the model is learned in a global way, after the data is centralized from all nodes (hereafter, synchronization). This process requires a lot of resources and communication. Thus it is crucial to minimize the number of synchronisations. %If the system performs synchronization and retraining periodically, then it can either miss the moment of the target change (which leads to erroneous predictions) or it performs redundant synchronizations (while the model is still valid), resulting in unnecessary communication costs.
+    
+    %To resolve this problem the synchronization should be done only when there is enough evidence that the model is close to be invalid.
+    %To resolve this problem, we define local  constraints, that if satisfied, guarantee the validity of the global prediction model.
+
+    Our approach for monitoring the global model over a distributed system  %is based on geometric monitoring~\cite{sharfman2007geometric,keren2012shape,lazerson2015monitoring}, which
+    provides provable guarantees of correctness,
+    while existing methods for detection of concept drift in distributed settings~\cite{AngGZPH13} rely on heuristics, utilizing error rate statistics.
 \end{description}
 
 
-Similarly to~\cite{icml2014c2_harel14}, we link the concept drift detection method with the hypothesis class
-and the training algorithm (The former is obvious, the latter is not. Designing a more general
-method for concept drift detection that is independent of the training algorithm of the classifier
-is left for future work). In this paper we focus on linear binary classifiers as a hypothesis class, and
-Linear Fisher Discriminant \cite{fisher1936use} as the learning algorithm.
-
-Linear classifiers well analysed, which allows to base new schemes on them more smoothly.
-However, linear classifiers are also very popular in real applications and serve as a platform to more
-complex classifiers, such as ensemble models \cite{Deva, eSVM},
+Similarly to~\cite{icml2014c2_harel14}, we link the concept drift detection method with the hypothesis class and the training algorithm  %\footnote{The former is obvious, the latter is not. Designing a more general
+%method for concept drift detection that is independent of the training algorithm of the classifier
+%is left for future work}.
+In this paper we focus on linear binary classifiers as a hypothesis class, and
+Linear Fisher Discriminant \cite{fisher1936use} as the learning algorithm. We focus on linear classifiers, as they are well studied, allowing a solid platform for analysing new concepts. Linear classifiers are also very popular in real applications and serve as a platform for more complex classifiers, such as ensemble models~\cite{Deva, eSVM},
 neural networks~\cite{osadchy2015k}, and even deep architectures\cite{ROSS}.
+
 
 \subsection{Our Contribution}
 
@@ -550,7 +533,7 @@ point.
 \caption{Example of false monitoring by applying the LDA formula locally. The
 initial state of the data is presented in (A) and the state at a later point
 is shown in (B). In (B) every node (green and red) calculates the same angle
-for the separator as it was in (A), i.e., no violation occurs. But it can be
+for the separator as it was in (A). But it can be
 seen that the true separator's (blue dashed line) angle has changed
 significantly. (Best to use in color)}
 \label{NegativeExampl}
@@ -564,14 +547,15 @@ data streams crosses a threshold. The key idea is to
 impose constraints on local data at the nodes, rather than
 on the function of the global aggregate. Given a function of
 the average of all local data and the threshold, we compute a
-convex safe zone for each node. 
+``good'' convex subsets, called \textit{safe zones}, for each
+node.
 \\\par As we show below, convexity
 plays a key role in the correctness of this scheme. As long
 as local data stay inside the safe zones, we guarantee that
 the function of the global average does not cross a threshold (that is given
 in terms of maximal angle or norm of distance between the classifiers).
 Nodes communicate only when local data drifts outside the
-safe zone, which we call a safe zone violation. Once that
+safe zone, which we call a safe zone \textit{violation}. Once that
 happens, violations can be resolved, for example by gathering
 data from all nodes and recomputing $w_0$ and the safe zones.
 In other words, we want to impose conditions on the local
@@ -628,11 +612,9 @@ It is easy to see that every global drift is the average of the local drifts:
 \end{remark}
 
 \subsection{Convex Safe Zones}
-We propose to solve the monitoring problem by means of
-``good'' convex subsets, called safe zones, of the data space.
 Each node monitors its own drift: as long as current values
 at local nodes $(S^i,p^i,q^i)$ are sufficiently similar to their values
-at sync time $(S^i_0,p^i_0,q^i_0)$, $w_0$ is guaranteed to be close to $w$.
+at synchronization time $(S^i_0,p^i_0,q^i_0)$, $w_0$ is guaranteed to be close to $w$.
 Formally, we define a convex subset $\mathcal{C}$ such that:
 \begin{equation} \label{convex}
 (\Delta_s, \delta_p, \delta_q) \in \mathcal{C} \Rightarrow \parallel w-w_0
@@ -673,7 +655,7 @@ which completes the proof.
 \subsection{Sliding Window Convex Bound}
 In the sliding window model each node computes $S^i$ from the $L$ samples seen
 at node $i$, while $S_0^i$ (and hence $S_0$) is built from the last L samples before
-sync. 
+synchronization. 
 We denote the drift in the global covariance matrix
 \begin{alignat*}{2}
 \Delta & := && B-B_0 \\
@@ -724,10 +706,10 @@ In this section we will present two frameworks for LDA model monitoring that use
 bound \ref{eq:convexBound}. In both of the frameworks, every node runs the same
 update algorithm as detailed in Alg. \ref{NodeUpdate}. 
 The frameworks differ in their violation recovery policy. 
-The first --- Distributed LDA Monitoring (DLDA) -- will sync in a round that 
-at least one node has reported a violation in it as it detailed in Alg.
+The first --- Distributed LDA Monitoring (DLDA) -- will synchronize in a round
+that at least one node has reported a violation in it as it detailed in Alg.
 \ref{DLDA}.
-The second --- Probabilistic Distributed LDA Monitoring (PDLDA) -- will sync in
+The second --- Probabilistic Distributed LDA Monitoring (PDLDA) -- will synchronize in
 a round that the number of violations in it is above a certain threshold.
 The calculation of this threshold is presented in the subsection below.
 
@@ -767,10 +749,7 @@ $||B_0^{-1}\delta||+ (||w_0||+R_0)(||B_0^{-1}L||+||B_0^{-1}M||) $ \par
 \Procedure{Sync}{}
 \If {One of the nodes has reported for violation} 
 \State Receive from every node $i$ the triplet 
-\State $S^i = S^i +xx^T - x_{old}^i(p)*(x_{old}^i(p))^T$
-\Else 
-\State $q^i = q^i + x -x_{old}^i(q)$
-\State $S^i = S^i +xx^T - x_{old}^i(q)*(x_{old}^i(q))^T$
+\State Compute updated $w_0$ and $u_0$ and distribute.
 \EndIf
 \EndProcedure
 \end{algorithmic}

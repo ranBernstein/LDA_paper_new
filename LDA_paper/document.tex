@@ -742,6 +742,22 @@ Consequently, for $t^*:=k*P_{FP}+z^*$,  $$P(V > t^*|U=0) <
 We found a threshold $t^*$ on the number of nodes with violation, such that if $V > t^*$,  then
 $\|w-w_0\| \geq u$ with high probability, and thus requires synchronization.
 \section{Evaluation}
+\begin{figure*}[ht]
+	\centering
+	\includegraphics[width=\textwidth]{PER/PERvsDLDAoverTime.png}
+	\caption{ DLDA model error (blue) compared to PER(100) model error (green),
+	for k = 10 simulated nodes with d = 2 dimensions, threshold T = 0.99 and
+	window size L=1000. Both algorithms reduce communication to 1\%, but DLDA
+	only synchronizes when $w$ changes. PER(100) synchronizes every 100 rounds,
+	but is unable to maintain error below the threshold (dashed horizontal line).}
+	\label{PERvsDLDAoverTime}
+\end{figure*}
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=60mm]{EarlyDetection.png}
+	\caption{A toy example for early drift detection. The positive class samples are shown as circles and the negative class samples are shown as asterisks. The drifts in both classes follow a 2D arc in opposite directions. $t_0, t_1$ are the first samples from the two classes; $t_{last-1}, t_{last}$ are the last samples from the two classes. The violation is reported at the sample in a larger circle, which happens prior to the first classification error (in the  last sample $t_{last}$).}
+	\label{EarlyDetection}
+\end{figure}
 We evaluated the performance of the proposed monitoring algorithms,
 DLDA and PDLDA, on synthetic and real
 data. For each dataset we simulated a distributed data stream by partitioning the data between the nodes and streaming it one sample in a round. We defined a coordinator, whose role is to monitor the violation alerts from the nodes and aggregate the data from all the nodes when it happens. The coordinator recomputes the model after data aggregation and sends the new covariance matrix and the norm of the new model to the nodes (in privacy preserving mode, the coordinator is a trusted party).
@@ -843,24 +859,19 @@ Another parameter that is directly related to the window size is the dimension o
 	\end{figure}
 
 \subsection{Real Data Experiments}
-In this section we demonstrate the algorithm with 3 datasets. The first
-(newsgroups collection) is relatively small, small enough for using
-the deterministic DLDA algorithm and there is no need to use PDLDA.
+In this section we test the algorithm on three real data sets. The first
+(newsgroups collection) is too small to use the probabilistic approach, thus we use this set only for DLDA test.
 The second (Power Consumption Monitoring) is a medium size dataset (it
-is distributed over 36 nodes) and both DLDA and PDLDA are demonstrated on it.
-The third (Gas Sensor Time Series Monitoring) is big (it is distributed over
-100 nodes), so we had to use only PDLDA on in.
-\subsubsection{Message Preference Monitoring --- Usenet}
-The USENET dataset is described in \cite{usenet}.
-This is a text dataset that simulates a stream of messages from three newsgroups
-(medicine, space, baseball); the messages are presented sequentially to a user,
-who then labels them as interesting or junk, according to personal interest.
-Attribute values are binary, indicating the presence or absence of the 128
-informative words. The drift occurs from an artificial change in the user's
-preference (from space to baseball). In Figure \ref{usenet} the behavior of the
-DLDA algorithm with $W=450$ is presented. The first 450 rounds over the data are for
-initialization and are omitted. During the next 50 rounds the DLDA error
-(the value is calculated on the left side of inequality
+is distributed over 36 nodes) and we test both DLDA and PDLDA on it.
+The third (Gas Sensor Time Series Monitoring) is a big set(it is distributed over
+100 nodes). DLDA synchronization policy is too strict for a large number of nodes, hence we use this set only for PDLDA test.
+
+subsubsection{Message Preference Monitoring --- Usenet}
+The USENET dataset~\cite{usenet} is a text dataset that simulates a stream of messages from three newsgroups (medicine, space, baseball); the messages are presented sequentially to a user, who then labels them as interesting or junk, according to personal interest. Attribute values are binary, indicating the presence or absence of the 128 informative words. The drift occurs from a change in the user's
+preference (from space to baseball). Figure \ref{usenet} shows the results of
+DLDA algorithm with $W=450$ . The first 450 rounds over the data correspond to 
+the initialization phase and are omitted. During the next 50 rounds the DLDA error
+(the value is calculated using the left side of the inequality in Eq.
 \ref{eq:convexBound}) increases due to noise in the data; there is
 no concept drift. From round 500 to 600 the DLDA error is stable,
 and again is due only to the noise. In round 600 there is a concept
@@ -879,28 +890,24 @@ synchronization in round 698.
 	\end{figure}
 	
 \subsubsection{Power Consumption Monitoring}
-The Power Consumption dataset contains the hourly power supply of an
-Italian electric company as recorded from two sources: power supplied
-by the main grid and power transformed from other grids.
+The Power Consumption dataset ~\cite{powerSupply} contains the hourly power supply of an
+Italian electric company as recorded from two sources: power, supplied
+by the main grid and power, transformed from other grids.
 This stream contains three-year power supply records
-from 1995 to 1998, and our learning task is to predict which hour (1 out of 24 hours) the
-current power supply belongs to. The concept drift in this stream
-is mainly driven by factors such as the season, weather, time of day,
+from 1995 to 1998, and our learning task is to predict which hour (1 out of 24 hours) the current power supply belongs to. The concept drift in this stream
+is mainly caused by such factors as season, weather, time of day,
 and the differences between working days and weekend.
-The dataset is described and can be downloaded from \cite{powerSupply}.
 We demonstrate the algorithms on the following binary classification problem:
-given a power supply measurement, decide if it is a night or a day.
+given a power supply measurement, decide wether it corresponds to a night or a day.
 This dataset is an example of gradual concept drift (seasons do not
-change suddenly).
-In Figure \ref{PowerSupplyFigures} DLDA
-and PDLDA are demonstrated. For a small number of nodes, $k=4$, and for big
-window size, $W=5000$, the communication is reduced to 0.3\%.
+change abruptly).
+Figure \ref{PowerSupplyFigures} depicts the results of DLDA
+and PDLDA algorithms. For a small number of nodes, $k=4$, and for big
+window size, $W=5000$, the communication is reduced to 0.3\%[RAN,CORRECT]
 For a more distributed system, k=36, and a smaller window
-size, $W=600$, the communication is reduced to 9\%. For PDLDA with
+size, $W=600$, the communication is reduced to 9\%[RAN,CORRECT]. For PDLDA with
 $k=36$ and $W=600$ and a violation threshold (VT) of 50\%, the communication
-is reduced to 2\%.
-
-
+is reduced to 2\%[RAN,CORRECT].
 
 
 
@@ -920,17 +927,10 @@ is reduced to 2\%.
 
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{PowerSupply/36nodesProb.png}
-        \caption{k=36 Nodes, W=600, VT=0}
+        \caption{k=36 Nodes, W=600, VT=18}
         \label{fig:mouse}
     \end{subfigure}
-    \caption{In the first two figures the DLDA algorithm adapts
-  to gradual concept drift on the power supply dataset.
-  The maximal error (over the nodes) in the
-  local DLDA bound calculation (blue) is compared to the true
-error (the norm of the difference) of all the data aggregated from
-all of the nodes (green). In the last figure PDLDA
-is demonstrated on the same dataset; the blue curve represents the
-fraction of violated nodes.}\label{PowerSupplyFigures}
+    \caption{The top and the center figures show the DLDA algorithm on the Power Supply data set for a small (top) and large (center) number of nodes. The blue line represents the value of the local bound expression, corresponding to the node with the maximum value. The green line shows the model drift (normalized by the threshold); the model is computed after the data was aggregated from all nodes. The bottom plot shows the results of the PDLDA on the same dataset. The blue line in the bottom plot represents the fraction of violated nodes.}\label{PowerSupplyFigures}
 \end{figure}
 
 
@@ -938,16 +938,16 @@ fraction of violated nodes.}\label{PowerSupplyFigures}
 
 \subsubsection{Gas Sensor Time Series Monitoring}
 
-\begin{figure}[h!]
-\centering
-\includegraphics[width=60mm]{BigGas/showData.png}
-\caption{Two-dimensional PCA projection of the gas sensor data,
-before concept drift (A), after concept drift (B),
-and the two projections together with their separators (C).
-The plot comes to illustrate the true change in the classifiers angle (as PDLDA
-behaviour indicates).}
-\label{BigGasShowData}
-\end{figure}
+%\begin{figure}[h!]
+%\centering
+%\includegraphics[width=60mm]{BigGas/showData.png}
+%\caption{Two-dimensional PCA projection of the gas sensor data,
+%before concept drift (A), after concept drift (B),
+%and the two projections together with their separators (C).
+%The plot comes to illustrate the true change in the classifiers angle (as PDLDA
+%behaviour indicates).}
+%\label{BigGasShowData}
+%\end{figure}
 
 
 \begin{figure*}[ht!]
@@ -964,24 +964,24 @@ Data in this experiment \cite{bigGas} consists of measurements collected
 by an array of 16 chemical sensors in a lab, recording at a sampling
 rate of 100Hz for 24 hours, resulting in 8378504 data points for each sensor.
 During the first 12 hours the task is to detect the presence of carbon monoxide
-(CO) in a mixture of Gases, and from the 13th hour the task is to detect the presence of methane.
-The change between the first task to the second is the sudden concept drift.
-In Fig \ref{BigGasShowData} a PCA projection of the data is shown.
-This is a big dataset, and can be massively distributed.
-There are two kinds of drifts in the data: there is a gradual drift that comes from
-the change in temperature in the lab over time, and an
-artificial sudden drift that comes from the switch between tasks after 12 hours.
-Figure \ref{BigGasOverTime} demonstrate the results of PDLDA.
-
-In Figure \ref{BigGasOverTime} two phenomena can be observed.
-First, the two lines are highly correlated --- the fraction of the violated
-nodes follows the true error. Second,  before the sudden concept drift
-(marked by the vertical red line), there is a synchronization every 150 rounds, while
-after the concept drift there is a synchronization only every 50 rounds.
-The second phenomenon continues over 1000 rounds, where there is a mixture in the
-sliding window between old (before the concept drift) data and new
-(after the concept drift). The existence of the second phenomena shows that
-the PDLDA algorithm detects and responds to the sudden concept drift.
+(CO) in a mixture of chemicals, and from the 13th hour the task is to detect 
+the presence of methane, 
+which corresponds to an abrupt concept drift.
+Figure \ref{BigGasOverTime} demonstrate the results of PDLDA algorithm.
+First, we can observe that the fraction of the violated nodes (shown in blue) 
+correlates with the true error (shown in green). 
+Second, it shows two patterns of behaviour which are separated by an abrupt 
+switch in the data  (marked by the vertical red line). 
+Before the switch,  the synchronization occurs every 150 rounds, 
+and after the switch, it goes down to every 50 rounds. 
+There is a transition period for about 1000 rounds, 
+that follows the point of the data switch. 
+In this interval, the sliding window mixes the old 
+(before switch) data and the new (after the switch) data, 
+but once the window aggregates enough data, 
+the algorithms stabilises and reduces the communication requirements.   
+This experiment shows that PDLDA algorithm detects the abrupt change 
+in the data and adapts to the new conditions after a short period of time.
 
 
 \section*{Conclusions}
@@ -1000,8 +1000,18 @@ For a small number of nodes we used DLDA with its theoretical guarantee, and for
 PDLDA and we showed that the proposed scheme outperforms PER: it maintains a smaller Euclidean distance between
 the last computed model to the current true model with a lower volume of communication.
 
-This work is the first step in designing communication-efficient algorithms with theoretical guarantees for monitoring classification models over dynamic streaming distributed data. Since we link the monitoring algorithm with the hypothesis class and the learning algorithm, each classifier type should be studied in depth. Alternatively, one can think of developing a monitoring method for a given hypothesis class, independent of the training algorithm. One of the future directions is to extend the proposed framework to ensemble of linear classifiers and neural networks, including deep learning network.
-An orthogonal, but important research direction is to analyse the privacy aspect of the proposed algorithm and try to adjust the proposed scheme  in order to provide a better privacy of the local data.
+This work is the first step in designing communication-efficient algorithms 
+with theoretical guarantees for monitoring classification models over dynamic 
+streaming distributed data. Since we link the monitoring algorithm with the 
+hypothesis class and the learning algorithm, each classifier type should be 
+studied in depth. 
+Alternatively, one can think of developing a monitoring method for a given 
+hypothesis class, independent of the training algorithm. 
+One of the future directions is to extend the proposed framework to 
+ensemble of linear classifiers and neural networks, including deep learning network.
+An orthogonal, but important research direction is to analyse the 
+privacy aspect of the proposed algorithm and try to adjust the proposed 
+scheme in order to provide a better privacy of the local data.
 
 %
 % The following two commands are all you need in the

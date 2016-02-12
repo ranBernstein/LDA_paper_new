@@ -325,10 +325,9 @@ neural networks~\cite{osadchy2015k}, and even deep architectures\cite{ROSS}.
 We propose Distributed Linear Discriminant Analysis
 \\ (DLDA): a novel communication-efficient algorithm for monitoring LDA classifier over a distributed, dynamic data streams.
 The proposed approach monitors the model itself, rather than classification errors,
-and detects concept drift in streaming data, before the errors occur and preserves privacy of the data.
+and detects concept drift in streaming data, before the errors occur, while  preserving the privacy of the data.
 The algorithm provides strong theoretical guarantees of correctness.
-We show empirically on three real data sets of different size and world of content that the proposed
-method reduces communication to a fraction than synchronizing every round.
+Empirical evaluation shows that our approach reduces communication to a fraction compared to synchronizing every round, it is scalable to a large number of nodes, and it has negligible adaptation period (less than a window length).
 
 
 \section{Related Work}
@@ -461,7 +460,7 @@ were at the initial point.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=60mm]{NegativeExample.png}
+\includegraphics[width=60mm, height=7cm]{NegativeExample.png}
 \caption{Example of incorrect monitoring by applying the LDA locally. The
 initial state of the data is presented in (A) and the state at a later point
 is shown in (B). In (B) every node (green and red dashed lines) calculates the same angle
@@ -715,7 +714,7 @@ Let $v_i \in \{0,1\}$ be an indicator for a local violation in the
 $i$'th node. We define the probability for True Positive (TP) and False Positive
 (FP) in a node as:
 \begin{alignat*}{1}
-& P_{TP} := P(v_i=1 | U=1) \\
+%& P_{TP} := P(v_i=1 | U=1) \\
 & P_{FP} := P(v_i=1 | U=0).
 \end{alignat*}
 Let $V$ be the random variable denoting the number of local violations
@@ -744,17 +743,17 @@ $\|w-w_0\| \geq u$ with high probability, and thus requires synchronization.
 \section{Evaluation}
 \begin{figure*}[ht]
 	\centering
-	\includegraphics[width=\textwidth]{PER/PERvsDLDAoverTime.png}
-	\caption{ DLDA model error (blue) compared to PER(100) model error (green),
-	for k = 10 simulated nodes with d = 2 dimensions, threshold T = 0.99 and
+	\includegraphics[width=\textwidth, height=4cm]{PER/PERvsDLDAoverTime.png}
+	\caption{ DLDA (blue) model drift (1 - $\frac{<w_0,w>}{||w||||w_0||}$) compared to PER(100) model drift (green),
+	for k = 10 simulated nodes with d = 2 dimensions, threshold T = 0.997 and
 	window size L=1000. Both algorithms reduce communication to 1\%, but DLDA
 	only synchronizes when $w$ changes. PER(100) synchronizes every 100 rounds,
-	but is unable to maintain error below the threshold (dashed horizontal line).}
+	but is unable to maintain drift below the threshold (dashed horizontal line).}
 	\label{PERvsDLDAoverTime}
 \end{figure*}
 \begin{figure}[ht]
 	\centering
-	\includegraphics[width=60mm]{EarlyDetection.png}
+	\includegraphics[width=60mm,height=4cm]{EarlyDetection.png}
 	\caption{A toy example for early drift detection. The positive class samples are shown as circles and the negative class samples are shown as asterisks. The drifts in both classes follow a 2D arc in opposite directions. $t_0, t_1$ are the first samples from the two classes; $t_{last-1}, t_{last}$ are the last samples from the two classes. The violation is reported at the sample in a larger circle, which happens prior to the first classification error (in the  last sample $t_{last}$).}
 	\label{EarlyDetection}
 \end{figure}
@@ -773,7 +772,7 @@ PER(P), which is a simple sampling algorithm that sends updates
 every P rounds.
 Our main performance metric is communication, measured
 in \textbf{normalized messages} -- the average number of messages sent per
-round by each node. PER can achieve an arbitrarily low communication at the price of errors. Periodic synchronization can miss the point of change in the data, hence it cannot guarantee to keep the model drift under a fixed threshold, while DLDA can.  DLDA has additional intrinsic advantages over PER: 1) DLDA can be instantly calibrated to fit a given drift threshold, while for PER the interval between synchronizations could only be determined empirically, which is slower. 2) Contrarily to PER, DLDA does not require adaptation period when the rate of the concept drift changes.
+round by each node. PER can achieve an arbitrarily low communication at the price of errors. Periodic synchronization can miss the point of change in the data, hence it cannot guarantee to keep the model drift under a fixed threshold, while DLDA can.  DLDA has additional intrinsic advantages over PER: 1) DLDA can be instantly calibrated to fit a given drift threshold, while for PER the interval between synchronizations could only be determined empirically, which is slower. 2) Contrarily to PER, DLDA does not require adaptation period when the rate of the concept drift changes. 3) For a sudden concept drift, DLDA's output reacts immediately --- the algorithm's \textit{latency} is 0 --- while for PER the latency might be up to the period length.
 %1) For a given allowed error rate, DLDA can be immediately calibrated not to exceed it while for PER the right period has to be found empirically.
 %2) If the rate that the date evolves changes, PER won't adapt its period size,
 %while DLDA adapts immediately.
@@ -797,7 +796,7 @@ It can been seen that for both fixed and dynamic data, DLDA outperforms PER for
 any given drift threshold.
  \begin{figure}[ht]
 	\centering
-	\includegraphics[width=60mm]{PER/onlyDrift.png}
+	\includegraphics[width=60mm, height=4cm]{PER/onlyDrift.png}
 	\caption{Communication as the function of drift for DLDA and PER. The
 	periodic algorithm is tuned to achieve the same max drift as DLDA
 	for each threshold.}
@@ -811,20 +810,10 @@ We observe that communication increases slowly, reaching 0.25\% on the fixed
 data and 0.6\% on the dynamic data distributed across 25 nodes.
 	\begin{figure}[h]
 	\centering
-	\includegraphics[width=60mm]{CommunicationOfFixedVsDrift/Nodes.png}
+	\includegraphics[width=60mm, height=4cm]{CommunicationOfFixedVsDrift/Nodes.png}
 	\caption{Communication as a function of the number of nodes.}
 	\label{Nodes}
 	\end{figure}
-%\subsubsection{Dimension}
-%Figure \ref{Dimension} shows how the dimension of the dataset affects
-%communication.
-%When window size $W$ is fixed, communication grows linearly with dimension $d$.
-%	\begin{figure}[h]
-%	\centering
-%	\includegraphics[width=60mm]{CommunicationOfFixedVsDrift/Dimension.png}
-%	\caption{Communication as a function of input dimension}
-%	\label{Dimension}
-%	\end{figure}
 
 \noindent\textbf{Window Size:}
 Figure \ref{WindowSize} shows how communication decreases as a result
@@ -833,7 +822,7 @@ noise (which is quantified in our context by the standard deviation of the
 data generating distribution).
  \begin{figure}
 	\centering
-	\includegraphics[width=60mm]{CommunicationOfFixedVsDrift/WindowSize.png}
+	\includegraphics[width=60mm, height=4cm]{CommunicationOfFixedVsDrift/WindowSize.png}
 	\caption{Communication as function of window size $W$}
 	\label{WindowSize}
 	\end{figure}
@@ -845,7 +834,7 @@ Another parameter that is directly related to the window size is the dimension o
 	
 \begin{figure}
 	\centering
-	\includegraphics[width=60mm]{CommunicationOfFixedVsDrift/Noise.png}
+	\includegraphics[width=60mm, height=4cm]{CommunicationOfFixedVsDrift/Noise.png}
 	\caption{Communication as a function of the standard deviation of the
 	data generating distribution.}
 	\label{Noise}
@@ -853,7 +842,7 @@ Another parameter that is directly related to the window size is the dimension o
 
 \begin{figure}
 	\centering
-	\includegraphics[width=60mm]{CommunicationOfFixedVsDrift/Dimension.png}
+	\includegraphics[width=60mm, height=4cm]{CommunicationOfFixedVsDrift/Dimension.png}
 	\caption{Communication as a function of input dimension}
 	\label{Dimension}
 	\end{figure}
@@ -881,7 +870,7 @@ synchronization in round 698.
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=60mm]{Usenet/DriftDetected.png}
+	\includegraphics[width=60mm, height=4cm]{Usenet/DriftDetected.png}
 	\caption{Comparison between maximal (over nodes) DLDA (blue)
 	error and the true global error (green) for $k=2$, $W=450$.
 	It can be seen that DLDA responds to the concept drift that occurs
@@ -903,56 +892,38 @@ This dataset is an example of gradual concept drift (seasons do not
 change abruptly).
 Figure \ref{PowerSupplyFigures} depicts the results of DLDA
 and PDLDA algorithms. For a small number of nodes, $k=4$, and for big
-window size, $W=5000$, the communication is reduced to 0.3\%[RAN,CORRECT]
+window size, $W=5000$, DLDA obtains only 0.003 normalized messages. 
 For a more distributed system, k=36, and a smaller window
-size, $W=600$, the communication is reduced to 9\%[RAN,CORRECT]. For PDLDA with
+size, $W=600$, DLDA obtains 0.09 normalized messages. For PDLDA with
 $k=36$ and $W=600$ and a violation threshold (VT) of 50\%, the communication
-is reduced to 2\%[RAN,CORRECT].
+is reduced to 0.02 normalized messages, much better than DLDA on the same setting.
 
-
-
-\begin{figure}
+\begin{figure}[ht!]
     \centering
     \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{PowerSupply/4nodes.png}
+        \includegraphics[width=\textwidth,height=3cm]{PowerSupply/4nodes.png}
         \caption{k=4, W=5000, VT=0}
         \label{fig:gull}
     \end{subfigure}
 
     \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{PowerSupply/36nodes.png}
+        \includegraphics[width=\textwidth,height=3cm]{PowerSupply/36nodes.png}
         \caption{k=36 Nodes, W=600, VT=0}
         \label{fig:tiger}
     \end{subfigure}
 
     \begin{subfigure}[b]{0.5\textwidth}
-        \includegraphics[width=\textwidth]{PowerSupply/36nodesProb.png}
+        \includegraphics[width=\textwidth,height=3cm]{PowerSupply/36nodesProb.png}
         \caption{k=36 Nodes, W=600, VT=18}
         \label{fig:mouse}
     \end{subfigure}
     \caption{The top and the center figures show the DLDA algorithm on the Power Supply data set for a small (top) and large (center) number of nodes. The blue line represents the value of the local bound expression, corresponding to the node with the maximum value. The green line shows the model drift (normalized by the threshold); the model is computed after the data was aggregated from all nodes. The bottom plot shows the results of the PDLDA on the same dataset. The blue line in the bottom plot represents the fraction of violated nodes.}\label{PowerSupplyFigures}
 \end{figure}
 
-
-
-
 \subsubsection{Gas Sensor Time Series Monitoring}
-
-%\begin{figure}[h!]
-%\centering
-%\includegraphics[width=60mm]{BigGas/showData.png}
-%\caption{Two-dimensional PCA projection of the gas sensor data,
-%before concept drift (A), after concept drift (B),
-%and the two projections together with their separators (C).
-%The plot comes to illustrate the true change in the classifiers angle (as PDLDA
-%behaviour indicates).}
-%\label{BigGasShowData}
-%\end{figure}
-
-
 \begin{figure*}[ht!]
 \centering
-\includegraphics[width=\textwidth]{BigGas/overTime100k.png}
+\includegraphics[width=\textwidth, ,height=4cm]{BigGas/overTime100k.png}
 \caption{Demonstration of PDLDA on the Gas Sensor dataset.
 A comparison between the true error (green) to the fraction of the nodes that
 are violated in the current round (blue).
@@ -964,26 +935,9 @@ Data in this experiment \cite{bigGas} consists of measurements collected
 by an array of 16 chemical sensors in a lab, recording at a sampling
 rate of 100Hz for 24 hours, resulting in 8378504 data points for each sensor.
 During the first 12 hours the task is to detect the presence of carbon monoxide
-(CO) in a mixture of chemicals, and from the 13th hour the task is to detect 
-the presence of methane, 
-which corresponds to an abrupt concept drift.
+(CO) in a mixture of chemicals, and from the 13th hour the task is to detect the presence of methane, which corresponds to an abrupt concept drift.
 Figure \ref{BigGasOverTime} demonstrate the results of PDLDA algorithm.
-First, we can observe that the fraction of the violated nodes (shown in blue) 
-correlates with the true error (shown in green). 
-Second, it shows two patterns of behaviour which are separated by an abrupt 
-switch in the data  (marked by the vertical red line). 
-Before the switch,  the synchronization occurs every 150 rounds, 
-and after the switch, it goes down to every 50 rounds. 
-There is a transition period for about 1000 rounds, 
-that follows the point of the data switch. 
-In this interval, the sliding window mixes the old 
-(before switch) data and the new (after the switch) data, 
-but once the window aggregates enough data, 
-the algorithms stabilises and reduces the communication requirements.   
-This experiment shows that PDLDA algorithm detects the abrupt change 
-in the data and adapts to the new conditions after a short period of time.
-
-
+First, we can observe that the fraction of the violated nodes (shown in blue) correlates with the true error (shown in green). Second, it shows two patterns of behaviour which are separated by an abrupt switch in the data  (marked by the vertical red line). Before the switch,  the synchronization occurs every 150 rounds, and after the switch, it goes down to every 50 rounds. There is a transition period for about 1000 rounds, that follows the point of the data switch. In this interval, the sliding window mixes the old (before switch) data and the new (after the switch) data, but once the window aggregates enough data, the algorithms stabilises and reduces the communication requirements.   This experiment shows that PDLDA algorithm detects the abrupt change in the data and adapts to the new conditions after a short period of time.
 \section*{Conclusions}
 We introduced a first communication-efficient monitoring algorithm for a linear classifier model that monitors the
 models itself, but doesn't need the knowledge of the global model at local nodes.

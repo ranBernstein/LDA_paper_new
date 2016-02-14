@@ -306,7 +306,7 @@ be detected before the prediction error occurs.
     nodes (either directly or indirectly by learning private information from the
     parameters of the model).
     In our method, we monitor the correctness of the global model without
-    reveling the model to the nodes. The global information that is required
+    revealing the model to the nodes. The global information that is required
     for our algorithm is the global covariance matrix of the feature space
     and the norm of the model. These are not enough to recover the global model,
     as the global means of the classes are not presented to the local nodes
@@ -379,21 +379,18 @@ The resulting combination may be used as a linear classifier, or for dimensional
 
 In LDA the problem is approached by assuming that the conditional probability
 density functions $P(\vec x|y=p)$ and $P(\vec x|y=q)$ are both normally distributed with
-mean and covariance parameters $\left(\vec \mu_p, B_p\right)$ and
-$\left(\vec \mu_q, B_q\right)$, for two target classes p and q respectively.
+mean and covariance parameters $(p, B_p)$ and
+$(q, B_q)$, for two target classes p and q respectively.
 ${(x_1,y_1),\ldots,(x_n,y_n)}$ are i.i.d. samples, $x_i \in \mathbb{R}^d$
 and $y_i \in \{0,1\}$.
 
-% Let ${(x_1,y_1),\ldots,(x_n,y_n)}$ be a set of n observation pairs of $d < n$
-% independent variables and one dependent variable, where $x_i$ are column vectors in $\mathbb{R}^d$, and $y_i$ are the
-% corresponding classes.
 We seek a linear transformation (model), $w \in \mathbb{R}^d $,
 that maximizes the separation between the classes, where the separation is
 defined to be the ratio of the variance between the classes to the variance
 within the classes:
 \begin{equation*}
-S := \frac{\sigma^2_{between}}{\sigma^2_{within}} = \frac{(w^T (\mu_p -
-\mu_q))^2}{w^T(B_p+B_q)w}.
+S := \frac{\sigma^2_{between}}{\sigma^2_{within}} = \frac{(w^T (p -
+q))^2}{w^T(B_p+B_q)w}.
 \end{equation*}
 Under this assumption, the Bayes optimal decision criterion is a threshold on the
 dot product
@@ -402,10 +399,10 @@ w \cdot x > c
 \end{equation*}
 for some threshold constant c, where
 \begin{equation} \label{eq:w}
-w \propto (B_p+B_q)^{-1}(\mu_p - \mu_q)
+w \propto (B_p+B_q)^{-1}(p - q)
 \end{equation}
 \begin{equation} \label{eq:c}
-c = \frac{1}{2}(T-{\mu_p}^T S_p^{-1} {\mu_p}+{\mu_q}^T S_q^{-1} {\mu_q}).
+c = \frac{1}{2}(T-{p}^T S_p^{-1} {p}+{q}^T S_q^{-1} {q}).
 \end{equation}
 In this work we monitor $w$, and will refer it as the
 classification \textit{model}.

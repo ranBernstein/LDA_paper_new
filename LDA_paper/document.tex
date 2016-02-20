@@ -1,53 +1,53 @@
-% This is "sig-alternate.tex" V2.1 April 2013
-% This file should be compiled with V2.5 of "sig-alternate.cls" May 2012
+%%%%%%%%%%%%%%%%%%%%%%% file template.tex %%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% This example file demonstrates the use of the 'sig-alternate.cls'
-% V2.5 LaTeX2e document class file. It is for those submitting
-% articles to ACM Conference Proceedings WHO DO NOT WISH TO
-% STRICTLY ADHERE TO THE SIGS (PUBS-BOARD-ENDORSED) STYLE.
-% The 'sig-alternate.cls' file will produce a similar-looking,
-% albeit, 'tighter' paper resulting in, invariably, fewer pages.
+% This is a general template file for the LaTeX package SVJour3
+% for Springer journals.          Springer Heidelberg 2006/03/15
 %
-% ----------------------------------------------------------------------------------------------------------------
-% This .tex file (and associated .cls V2.5) produces:
-%       1) The Permission Statement
-%       2) The Conference (location) Info information
-%       3) The Copyright Line with ACM data
-%       4) NO page numbers
+% Copy it to a new file with a new name and use it as the basis
+% for your article. Delete % signs as needed.
 %
-% as against the acm_proc_article-sp.cls file which
-% DOES NOT produce 1) thru' 3) above.
+% This template includes a few options for different layouts and
+% content for various journals. Please consult a previous issue of
+% your journal as needed.
 %
-% Using 'sig-alternate.cls' you have control, however, from within
-% the source .tex file, over both the CopyrightYear
-% (defaulted to 200X) and the ACM Copyright Data
-% (defaulted to X-XXXXX-XX-X/XX/XX).
-% e.g.
-% \CopyrightYear{2007} will cause 2007 to appear in the copyright line.
-% \crdata{0-12345-67-8/90/12} will cause 0-12345-67-8/90/12 to appear in the copyright line.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% ---------------------------------------------------------------------------------------------------------------
-% This .tex source is an example which *does* use
-% the .bib file (from which the .bbl file % is produced).
-% REMEMBER HOWEVER: After having produced the .bbl file,
-% and prior to final submission, you *NEED* to 'insert'
-% your .bbl file into your source .tex file so as to provide
-% ONE 'self-contained' source file.
+% First comes an example EPS file -- just ignore it and
+% proceed on the \documentclass line
+% your LaTeX will extract the file if required
+\begin{filecontents*}{example.eps}
+%!PS-Adobe-3.0 EPSF-3.0
+%%BoundingBox: 19 19 221 221
+%%CreationDate: Mon Sep 29 1997
+%%Creator: programmed by hand (JK)
+%%EndComments
+gsave
+newpath
+  20 20 moveto
+  20 220 lineto
+  220 220 lineto
+  220 20 lineto
+closepath
+2 setlinewidth
+gsave
+  .4 setgray fill
+grestore
+stroke
+grestore
+\end{filecontents*}
 %
-% ================= IF YOU HAVE QUESTIONS =======================
-% Questions regarding the SIGS styles, SIGS policies and
-% procedures, Conferences etc. should be sent to
-% Adrienne Griscti (griscti@acm.org)
+\documentclass[natbib]{svjour3}                     % onecolumn (standard format)
+%\documentclass[smallextended]{svjour3}     % onecolumn (second format)
+%\documentclass[twocolumn]{svjour3}         % twocolumn
 %
-% Technical questions _only_ to
-% Gerald Murray (murray@hq.acm.org)
-% ===============================================================
+\smartqed  % flush right qed marks, e.g. at end of proof
 %
-% For tracking purposes - this is V2.0 - May 2012
-
-\documentclass{sig-alternate-05-2015}
-
 \usepackage{graphicx}
+
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
 \usepackage{caption}
 \usepackage{subcaption}
 
@@ -59,135 +59,80 @@
 \usepackage{lipsum}
 \usepackage{graphicx}
 \usepackage[caption=false]{subfig}
-\usepackage{graphicx}
 \usepackage{csvsimple}
 %\usepackage{array}
 \usepackage{float}
 \usepackage{amsmath}
 \usepackage{pgfplotstable}
-%\usepackage[demo]{graphicx}
-%\usepackage{subcaption}
+
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
 \usepackage{varwidth}
-
-\newtheorem{lemma}{Lemma}
-\newtheorem{definition}{Definition}
-\newtheorem{remark}{Remark}
-\newtheorem{corollary}{Corollary}
-
+%
+% \usepackage{mathptmx}      % use Times fonts if available on your TeX system
+% \usepackage{chicago-bibstyle}  % use this style if you don't use BibTeX.
+%
+% insert here the call for the packages your document requires
+%\usepackage{latexsym}
+% etc.
+%
+% please place your own definitions here and don't use \def but
+% \newcommand{}{}
+%
+% Insert the name of "your journal" with
+% \journalname{myjournal}
+%
+% Definitions for the journal names
+\newcommand{\aap}{{Astron. Astrophys.}}
+\newcommand{\apj}{{Astrophys. J.}}
+\newcommand{\grl}{{Geophys. Res. Lett.}}
+\newcommand{\solphys}{{Solar Phys.}}
+%
 \begin{document}
-\nocite{*}
-% Copyright
-\setcopyright{acmcopyright}
-\setcopyright{acmlicensed}
-%\setcopyright{rightsretained}
-%\setcopyright{usgov}
-%\setcopyright{usgovmixed}
-%\setcopyright{cagov}
-%\setcopyright{cagovmixed}
 
+\title{LDA Model Monitoring in Distributed Systems%\thanks{Grants or other notes
+%about the article that should go on the front page should be
+%placed here. General acknowledgments should be placed at the end of the article.}
+}
 
-% DOI
-%\doi{10.475/123_4}
+%\titlerunning{Short form of title}        % if too long for running head
 
-% ISBN
-%\isbn{123-4567-24-567/08/06}
+\author{Ran Bernstein         \and
+        Daniel Keren \and
+        Margarita Osadchy \and
+        Assaf Schuster
+}
 
-%Conference
-%\conferenceinfo{PLDI '13}{June 16--19, 2013, Seattle, WA, USA}
+%\authorrunning{Short form of author list} % if too long for running head
 
-%\acmPrice{\$15.00}
-
-%
-% --- Author Metadata here ---
-%\conferenceinfo{WOODSTOCK}{'97 El Paso, Texas USA}
-%\CopyrightYear{2007} % Allows default copyright year (20XX) to be over-ridden - IF NEED BE.
-%\crdata{0-12345-67-8/90/01}  % Allows default copyright data (0-89791-88-6/97/05) to be over-ridden - IF NEED BE.
-% --- End of Author Metadata ---
-\title{LDA Model Monitoring in Distributed Systems}%\titlenote{(Produces the permission block, and
-%copyright information). For use with
-%SIG-ALTERNATE.CLS. Supported by ACM.}}
-%\subtitle{[Extended Abstract]
-%\titlenote{A full version of this paper is available as
-%\textit{Author's Guide to Preparing ACM SIG Proceedings Using
-%\LaTeX$2_\epsilon$\ and BibTeX} at
-%\texttt{www.acm.org/eaddress.htm}}}
-%
-% You need the command \numberofauthors to handle the 'placement
-% and alignment' of the authors beneath the title.
-%
-% For aesthetic reasons, we recommend 'three authors at a time'
-% i.e. three 'name/affiliation blocks' be placed beneath the title.
-%
-% NOTE: You are NOT restricted in how many 'rows' of
-% "name/affiliations" may appear. We just ask that you restrict
-% the number of 'columns' to three.
-%
-% Because of the available 'opening page real-estate'
-% we ask you to refrain from putting more than six authors
-% (two rows with three columns) beneath the article title.
-% More than six makes the first-page appear very cluttered indeed.
-%
-% Use the \alignauthor commands to handle the names
-% and affiliations for an 'aesthetic maximum' of six authors.
-% Add names, affiliations, addresses for
-% the seventh etc. author(s) as the argument for the
-% \additionalauthors command.
-% These 'additional authors' will be output/set for you
-% without further effort on your part as the last section in
-% the body of your article BEFORE References or any Appendices.
-
-\numberofauthors{4} %  in this sample file, there are a *total*
-% of EIGHT authors. SIX appear on the 'first-page' (for formatting
-% reasons) and the remaining two appear in the \additionalauthors section.
-%
-\author{
-% You can go ahead and credit any number of authors here,
-% e.g. one 'row of three' or two rows (consisting of one row of three
-% and a second row of one, two or three).
-%
-% The command \alignauthor (no curly braces needed) should
-% precede each author name, affiliation/snail-mail address and
-% e-mail address. Additionally, tag each line of
-% affiliation/address with \affaddr, and tag the
-% e-mail address with \email.
-%
-% 1st. author
-\alignauthor
-Ran Bernstein\\
-       \affaddr{Technion -- Israel Institute of Technology}\\
-       \affaddr{Haifa 32000 Israel}\\
-       \email{bernstein.ran@Gmail.com}
-% 2nd. author
-\alignauthor
- Daniel Keren\\
-       \affaddr{University of Haifa}\\
-       \affaddr{Haifa 31905 Israel}\\
-       \email{dkeren@cs.haifa.ac.il}
-% 3rd. author
-\alignauthor
-Margarita Osadchy\\
-       \affaddr{University of Haifa}\\
-       \affaddr{Haifa 31905 Israel}\\
+\institute{Ran Bernstein \at
+              Technion -- Israel Institute of Technology \\
+              Haifa 32000 Israel\\
+              \email{bernstein.ran@Gmail.com}           %  \\
+%             \emph{Present address:} of F. Author  %  if needed
+           \and
+           Daniel Keren \at
+              University of Haifa \\
+              Haifa 31905 Israel \\
+              dkeren@cs.haifa.ac.il
+            \and
+            Margarita Osadchy \at
+       University of Haifa\\
+       Haifa 31905 Israel\\
        \email{rita@cs.haifa.ac.il }
-\and  % use '\and' if you need 'another row' of author names
-% 4th. author
-\alignauthor Assaf Schuster\\
-       \affaddr{Technion -- Israel Institute of Technology}\\
-       \affaddr{Haifa 32000 Israel}\\
+       \and
+       Assaf Schuster \at
+      Technion -- Israel Institute of Technology\\
+      Haifa 32000 Israel\\
        \email{assaf@cs.technion.ac.il}
 }
-% There's nothing stopping you putting the seventh, eighth, etc.
-% author on the opening page (as the 'third row') but we ask,
-% for aesthetic reasons that you place these 'additional authors'
-% in the \additional authors block, viz.
 
-% Just remember to make sure that the TOTAL number of authors
-% is the number that will appear on the first page PLUS the
-% number that will appear in the \additionalauthors section.
+\date{Received: date / Accepted: date}
+% The correct dates will be entered by the editor
+
 
 \maketitle
+
 \begin{abstract}
 Real systems for mining dynamic data streams should be able to detect changes that affect the
 accuracy of the global model. Most previous work addressed the centralized settings
@@ -199,106 +144,63 @@ costly in term of communication.
 In order to minimize the communication, a monitoring algorithm should be executed locally at each node,
 while preserving the validity of the global model.
 We propose the first communication-efficient algorithm for monitoring a classification model over
-distributed, dynamic data streams. Linear Discriminant Analysis (LDA) is a popular algorithm
+distributed, dynamic data streams. Linear Discriminant Analysis (LDA) is a popular method
 used for classification and dimensionality reduction in many fields and thus we chose it as our
 classification model.
 Our algorithm has strong theoretical guarantees of correctness and it is shown empirically to
 reduce communication volume by up to two orders of magnitude (compared to synchronization in every round) on three real data sets from different worlds of content.
 Moreover, our approach monitors the classification model itself as opposed
-to its errors, which make it possible to detect the change before the error occurs and provide privacy of the local data.
-\end{abstract}
-
-
-%
-% The code below should be generated by the tool at
-% http://dl.acm.org/ccs.cfm
-% Please copy and paste the code instead of the example below.
-%
-\begin{CCSXML}
-<ccs2012>
-<concept>
-<concept_id>10002951.10003317.10003347.10003356</concept_id>
-<concept_desc>Information systems~Clustering and classification</concept_desc>
-<concept_significance>300</concept_significance>
-</concept>
-<concept>
-<concept_id>10003752.10003809.10010172</concept_id>
-<concept_desc>Theory of computation~Distributed algorithms</concept_desc>
-<concept_significance>300</concept_significance>
-</concept>
-</ccs2012>
-\end{CCSXML}
-
-\ccsdesc[300]{Information systems~Clustering and classification}
-\ccsdesc[300]{Theory of computation~Distributed algorithms}
-
-
-%
-% End generated code
-%
-
-%
-%  Use this command to print the description
-%
-\printccsdesc
-
-% We no longer use \terms command
-%\terms{Theory}
+to its errors, which makes it possible to detect the change before the error occurs and guaranties privacy of the local data.
 
 \keywords{Linear Discriminant Analysis; Distributed Monitoring}
+% \PACS{PACS code1 \and PACS code2 \and more}
+% \subclass{MSC code1 \and MSC code2 \and more}
+\end{abstract}
 
 \section{Introduction}
+\label{intro}
 In this work, we address the problem of mining data streams when the data is
 {\em distributed} over a large number of nodes. We assume that the data generation process and the prediction problem are the same for all nodes. However, the streaming data is not stationary; notably, it can change over time. The change could be caused by a system fault (e.g., sensor failure) or by a transition in the target concept. Classic examples of real-life prediction problems that involve target concept change are user preference prediction and fraud detection. In the former, the choices of the user can change over time; in the latter, the fraudulent transactions change constantly to avoid detection.
-
-
-
-
-
-
-
-
-In both, the target concept changes over time, and if not detected, renders the prediction model inadequate.
+In both, the change in the target concept, if not detected, can render the prediction model invalid.
 
 Methods that detect changes in data over time are referred to as {\em concept drift detection} or {\em change-point detection}.
 A large volume of work has been done on these topics
 (see e.g., ~\cite{basseville1993detection,brodsky2013nonparametric,ChenGupta2000,Tsymbal,Gama2014}
 for in-depth surveys of the field).
-The solutions, proposed in previous work cover different forms of data change:
+The solutions proposed in previous work cover different forms of data change:
 the input data characteristics, or the relation between the input data and the target variable, or both.
 Some forms of change will influence the prediction model and some will not
-(even though the second kind could be detected as a change in the distribution underlying the data and
-might mistakenly indicate that a re-computation of the prediction model is required).
+(but might cause a redundant re-computation of the prediction model).
 In this work, we are only concerned with the changes that affect the model.
+
 Our method is distinct from the previous work in the following important aspects:
-
-
 \noindent \textbf{Model-Based Monitoring:} We focus on monitoring a classification model.
 Most previous work on concept drift detection~\cite{baena2006early,gama2004learning,Nishida2007},
-concerned with classification, is error-based  (utilizing classification error rates to
+classification-based, is error-based  (utilizing classification error rates to
 draw conclusions about the change in the distribution).
-Here, we propose to monitor the change in the {\em model} itself as opposed to errors in classification.
+Here, we propose to monitor the change in the {\em model} itself.
 Monitoring the model and not the errors has an important benefit: the drift can
 be detected before the prediction error occurs.
 
 \noindent \textbf{Distributed Setting:} Concept drift has been actively studied in centralized settings.
 
     Our is one of the very few works \cite{AngGZPH13} that detects concept drift in a distributed
-    environment, which is a critical part of a real big data system.
+    environment, which is a critical part of a real-life big data system.
     In such systems, data is distributed over a large number of nodes and the model is learned
     globally, after the data is centralized from all the nodes (hereafter, synchronization).
     This process requires a lot of resources and communication.
-    Thus it is crucial to minimize the number of synchronisations.
+    Thus it is crucial to minimize the number of synchronizations.
     Our approach for monitoring the global model over a distributed system
-    provides provable guarantees of correctness, while existing methods for detection of concept
+    provides provable guarantees of correctness, while the few existing methods for detection of concept
     drift in distributed settings~\cite{AngGZPH13} rely on heuristics, utilizing error rate statistics.
 
 \noindent \textbf{Data Privacy:} Data privacy is important in distributed systems: no node should learn the data of other nodes.
 
 
-    One example might be nodes that correspond to different hospitals. The hospitals are not allowed to share patient information but want to perform collaborative training to improve the global model (using a trusted third party).
+    One example might be nodes that correspond to different hospitals. The hospitals are not allowed to share patient information, but still want to use a global model that is trained using the union of the data from all of the hospitals.
+    perform collaborative training to improve the global model (using a trusted third party).
     Methods that analyze classification errors to detect concept drift require knowledge of the global model. If the goal is to protect the privacy of the data in the local nodes, then the information received by those nodes should not reveal private information from other nodes (either directly or indirectly, by learning private information from the parameters of the model).
-    In our method, we monitor the correctness of the global model without revealing the model to the nodes. The global information required for our algorithm is the global covariance matrix of the feature space and the norm of the model. These are not enough to recover the global model, as the global means of the classes are not presented to the local nodes (as needed in LDA computation).
+    In our method, we monitor the correctness of the global model without revealing the model to the nodes. The global information required for our algorithm is the global covariance matrix of the feature space and the norm of the model. These are not enough to recover the global model, as the global means of the classes are not presented to the local nodes (as required in LDA computation).
 
 
 
@@ -316,21 +218,22 @@ We propose Distributed Linear Discriminant Analysis
 The proposed approach monitors the model itself, rather than classification errors,
 and detects concept drift in streaming data, before the errors occur, while  preserving the privacy of the data.
 The algorithm provides strong theoretical guarantees of correctness.
-Empirical evaluation shows that our approach reduces communication to a fraction compared to synchronizing every round, it is scalable to a large number of nodes (by using a probabilistic adaptation of the main algorithm), and it has negligible adaptation period (less than a window length).
-
+Empirical evaluation shows that our approach reduces communication to a fraction of that incurred by synchronizing in every round, it is scalable to a large number of nodes (by using a probabilistic adaptation of the main algorithm), and its adaptation period (hereafter, \textit{latency}) is negligible  (less than a window length).
 
 
 \section{Related Work}
 Monitoring dynamic data streams is a broad topic that has been addressed in different research communities. Within this field, we focus on detecting a change in the data stream that renders the prediction model invalid. This problem is similar to concept drift detection, which was actively studied in centralized settings~\cite{basseville1993detection,brodsky2013nonparametric,ChenGupta2000,Tsymbal,Gama2014}.
 
-Among methods for concept drift in classification are e.g., \cite{gama2004learning,baena2006early,klinkenberg2000detecting,dries2009adaptive,icml2014c2_harel14,AngGZPH13}. Some of these methods~\cite{gama2004learning,baena2006early,klinkenberg2000detecting} are based on analysis of classification errors, hence they detect the drift only after the model becomes inaccurate. Others \cite{klinkenberg2000detecting,dries2009adaptive} try to estimate the generalization error from the samples in the window to draw the conclusions on the change in the distribution. The models that are used in such analysis are not related to the prediction model at hand, and are dictated by either computation efficiency \cite{klinkenberg2000detecting} or by model capacity considerations (e.g. linear classier are less likely to overfit the data in a window)\cite{dries2009adaptive}. There is no guarantee that the generalization error of the prediction model has any relation to the one, used in detection of the concept drift. Thus, we link the detection method to the prediction model and learning algorithm (as in \cite{icml2014c2_harel14,AngGZPH13}).
+Methods for concept drift in classification, include, e.g., \cite{gama2004learning,baena2006early,klinkenberg2000detecting,dries2009adaptive,icml2014c2_harel14,AngGZPH13}. Some of these methods~\cite{gama2004learning,baena2006early,klinkenberg2000detecting} are based on analysis of classification errors; hence they detect the drift only after the model becomes inaccurate. Others \cite{klinkenberg2000detecting,dries2009adaptive} try to estimate the generalization error from the samples in the window to draw conclusions about the change in the distribution. The models used in such analysis are not related to the prediction model at hand, and are dictated by either computational efficiency \cite{klinkenberg2000detecting} or by model capacity considerations (e.g., linear classifiers are less likely to overfit the data in a window)\cite{dries2009adaptive}. 
+
+%There is no guarantee that the generalization error of the prediction model %has any relation to the one, used in detection of the concept drift. Thus, %we link the detection method to the prediction model and learning algorithm %(as in \cite{icml2014c2_harel14,AngGZPH13}).
 
 In distributed settings, the problem of detecting a change in the data stream is referred to as {\em distributed monitoring}, and it is concerned with designing local tests for monitoring a function, defined globally over all the nodes in the system.
 In this work, we focus on monitoring a global classification model, namely LDA, over distributed data.
-We aim to define a constraint over the local data (at each node) that guarantees the validity of the global model. If a local data (in one or more nodes) does not meet the local condition, it leads to synchronization, i.e., the local data is collected to a central location from all the nodes and the model is recomputed.
+We aim to define a constraint over the local data (at each node) that guarantees the validity of the global model. If local data (in one or more nodes) does not meet the local condition, it leads to synchronization, i.e., the local data is collected to a central location from all the nodes and the model is recomputed.
 The synchronization process has large communication costs, and the goal of the distributed monitoring methods is thus to minimize the number of synchronizations.
 
-Most of the work in distributed monitoring has been concerned with simple
+Most of the work on distributed monitoring has been concerned with simple
 functions of the data, such as
 linear~\cite{keralapura2006communication, kashyap2008efficient} or
 monotonic \cite{michel2005klee} functions.
@@ -339,7 +242,7 @@ of a single-variable polynomial~\cite{shah2008handling},
 and eigenvalue perturbation~\cite{huang2007communication}.
 
 A recently introduced work on monitoring Least Square 
-Regression (LSR) ~\cite{gabel2015monitoring} is the closest to ours, 
+Regression (LSR), ~\cite{gabel2015monitoring} is the closest to ours, 
 but unlike the global scatter matrix (required by LSR) the global
 covariance matrix (required in LDA) is not the mean of the 
 local covariance matrices.
@@ -351,7 +254,7 @@ We then define the monitoring problem and introduce our solution to it
 using convex set constraints.
 
 \subsection{Linear Discriminant Analysis}%\\ \par
-LDA seeks for a linear combination of features that characterize or separate two or more classes of samples.
+LDA seeks a linear combination of features that characterize or separate two or more classes of samples.
 The resulting combination may be used as a linear classifier, or for dimensionality reduction before later classification.
 
 In LDA the problem is approached by assuming that the conditional probability
@@ -365,10 +268,10 @@ We seek a linear transformation (model), $w \in \mathbb{R}^d $,
 that maximizes the separation between the classes, where the separation is
 defined to be the ratio of the variance between the classes to the variance
 within the classes:
-\begin{equation*}
+\begin{equation}
 S := \frac{\sigma^2_{between}}{\sigma^2_{within}} = \frac{(w^T (p -
 q))^2}{w^T(B_p+B_q)w}.
-\end{equation*}
+\end{equation}
 Under this assumption, the Bayes optimal decision criterion is a threshold on the
 dot product
 \begin{equation*} \label{eq:decision}
@@ -391,8 +294,8 @@ Our model uses discrete time (hereafter, rounds). Every node receives a new samp
 in a round.
 We use the \textit{sliding window} model where every node computes its current
 parameters from the last $W$ samples it was given.
-Every node keeps two sliding windows (one for each class) of length of $W/2$, as
-a node receives a new observation it replaces the oldest one from its class.
+Every node keeps two sliding windows (one for each class) of length of $W/2$: 
+as a node receives a new observation, it replaces the oldest one from its class.
 $x^i_j$ and $y^i_j$ are the $j$'th sample and label in the $i$'th node
 and $x_{old}^i(p)$ and $x_{old}^i(q)$ are the oldest samples from each class in
 the sliding window of the $i$'th node.
@@ -400,29 +303,30 @@ As data evolves, it is possible that the previously computed model
 no longer matches the current true model.
 Let $w_0$ be the existing model (vector of weights of a linear classifier),
 previously computed at some point in the past (the synchronization time),
-and let $w$ be the true
-(The true model is the one we would obtained if we had aggregated the current observations
-from all of the nodes into one place and computed the model according to it) LDA
-model.
+and let $w$ be the true LDA model.
+The true model is the one we would have obtained if we had aggregated the current observations from all of the nodes into one location and computed the model according to it.
 We wish to maintain an accurate estimation $w_0$ of the current global LDA model, $w$.
 The question is then when to update the model.
 Given an error threshold $T$, our goal is to raise an alert if
 \begin{equation} \label{eq:coneCritiria}
 \frac{<w,w_0>}{\parallel w \parallel \parallel w_0 \parallel}  < T.
 \end{equation}
-Due to the complexity of Eq. \ref{eq:coneCritiria},
-we will monitor a simpler problem whose solution also satisfies
-Eq. \ref{eq:coneCritiria}: the maximal volume sphere of which $w_0$ is its center
-that resides completely inside the cone from Eq. ~\ref{eq:coneCritiria}.
-This sphere is defined by
+
+%Due to the complexity of Eq. \ref{eq:coneCritiria},
+%we will monitor a simpler problem whose solution also satisfies
+Due to technical issues, instead of handling the cone containment, we use a bound on the distance to its radius, thus getting a sphere containment condition, i.e., 
+%Eq. \ref{eq:coneCritiria}: the maximal volume sphere of which $w_0$ is its center
+%that resides completely inside the cone from Eq. ~\ref{eq:coneCritiria}.
+%This sphere is defined by
 \begin{equation} \label{eq:critiria}
-\parallel w-w_0 \parallel \  >  R_0,
+||w-w_0||   >  R_0,
 \end{equation}
-where $R_0 := \  \parallel w_0 \parallel \sqrt{1-T^2}$ is its radius.
-Empirical evaluation showed that the values of
-$1-\frac{<w,w_0>}{||w||||w_0||}$ and $||w-w_0||$ are
-highly  correlated, thus in practice, Eq. \ref{eq:coneCritiria}
-can be replaces by Eq.\ref{eq:critiria}.
+where $R_0 := ||w_0|| \sqrt{1-T^2}$ is the radius of the maximal volume sphere of which $w_0$ is its center and resides inside the cone from Eq. \ref{eq:coneCritiria}.
+%In other words, we replaced containment by distance from the boundary.
+%Empirical evaluation showed that the values of
+%$1-\frac{<w,w_0>}{||w||||w_0||}$ and $||w-w_0||$ are
+%highly  correlated, thus in practice, Eq. \ref{eq:coneCritiria}
+%can be replaced by Eq.\ref{eq:critiria}.
 
 
 \subsection{Monitoring Distributed LDA With Convex Subsets}
@@ -432,17 +336,17 @@ node. Even when all current local models $w_i$ are similar to the precomputed
 local models $w_0$, the current global model $w$ may
 be very different from the precomputed model $w_0$
 \footnote{Note that this has the obvious benefit of preserving the privacy
-of the data in each node from all the other nodes}.
+of the data in each node from all the other nodes.}.
 Consider the example in Figure \ref{NegativeExample} with $k = 2$ nodes
 and dimension $d =2$.
-The angle deviation of the global model (shown in solid line) is large (45 degrees)
-even though the local models (shown in dashed line) are identical to what they
+The angle deviation of the global model (shown in solid lines) is large (45 degrees)
+even though the local models (shown in dashed lines) are identical to what they
 were at the initial point.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=60mm, height=7cm]{NegativeExample.png}
-\caption{Example of incorrect monitoring by applying the LDA locally. The
+\caption{Example of incorrect monitoring by applying LDA locally. The
 initial state of the data is presented in (A) and the state at a later point
 is shown in (B). In (B) every node (green and red dashed lines) calculates the same angle
 for the separator as it was in (A). But it can be
@@ -483,29 +387,23 @@ $P$ and $Q$ are the classes in the binary classification problem.
 \\$S^i := \frac{1}{n}\sum_{j=1}^{n}x^i_j(x^i_j)^T
 \\S := \frac{1}{nk}
 \sum_{i=1}^k\sum_{j=1}^nx^i_j(x^i_j)^T=\frac{1}{k}\sum_{i=1}^kS^i$.
-\\Similarly, $u$ and $u^i$ are the distance between the means of the classes:
-\\$u:=p - q$
-\\$u^i:=p^i - q^i$.
-\\ $B$ is the global covariance matrix, which is the sum of the covariance
-matrices of the two classes:
-\\$B:=B_p+Bq$
-\\It can be shown that
-$B=S - pp^T - qq^T$.
+\\Similarly, $u$ and $u^i$ are the distance between the means of the classes, i.e., $u:=p - q$ and $u^i:=p^i - q^i$.
+\\ $B$ is the global covariance matrix, which is the sum of the covariance matrices of the two classes, i.e., $B:=B_p+Bq$.
+It can be shown that $B=S - pp^T - qq^T$.
 %\\B^i:=S^i - p^i(p^i)^T - q^i(q^i)^T$
-\\\\Let w be our current true model. Then, following Eq.~\ref{eq:w}, we can
-express:
+\\Let w be our current true model. Then, following Eq.~\ref{eq:w}, we can express:
 %\\$w(S,\mu_p,\mu_q) := (S - \mu_p\mu_p^T - \mu_q\mu_q^T)^{-1}(\mu_p - \mu_q)$
-\begin{equation*}
+\begin{equation}
 w:=(S - pp^T - qq^T)^{-1}(p-q)=B^{-1}u.
-\end{equation*}
+\end{equation}
 %In the following the subscript $0$ will denote the state at the time
 %of last synchronization.
 Let $w_0$ be the existing model, previously computed from $(S_0, p_0, q_0)$
 or from $(B_0,u_0)$ at the time of synchronization.
 Then,
-\begin{equation*}
+\begin{equation}
 w_0:=(S_0 - p_0p_0^T - q_0q_0^T)^{-1}(p_0-q_0)=B_0^{-1}u_0.
-\end{equation*}
+\end{equation}
 $\Delta_s, \delta_p$, and $\delta_q$ are the drift vectors of $S, p$, and $q$,
 i.e.,
 \begin{alignat*}{1}
@@ -543,31 +441,31 @@ Formally, we define a convex set $\mathcal{C}$ such that:
 Let $\mathcal{C}$ be a convex set that satisfies Eq. \ref{convex}.
 If $(\Delta_s^i, \delta_p^i, \delta_q^i) \in \mathcal{C}$ for all i, then
 \begin{equation*}
-\parallel w-w_0 \parallel \ < R_0.
+||w-w_0|| < R_0.
 \end{equation*}
 \end{lemma}
 \begin{proof}
 We express $S, p$ and $q$ as their values at synchronization with the addition of the
 average of the local drifts:
-\begin{equation*}
+\begin{equation}
 \begin{split}
-(S,p,q) & = \frac{1}{k} \sum_i (S^i,p^i,q^j) \\
+\\(S,p,q) & = \frac{1}{k} \sum_i (S^i,p^i,q^j) \\
  & = (S_0,p_0,q_0) + \frac{1}{k} \sum_i (\Delta_s^i,\delta^i_p,\delta_q^i). \\
 \end{split}
-\end{equation*}
+\end{equation}
 From $\mathcal{C}$'s convexity and using Remark \ref{average} we get:
-\begin{equation*}
+\begin{equation}
 \begin{split}
 \forall i (\Delta_s^i,\delta^i_p,\delta_q^i) \in \mathcal{C} & \Rightarrow
 \frac{1}{k} \sum_i (\Delta_s^i,\delta^i_p,\delta_q^i) \in \mathcal{C} \\
 & \Rightarrow (\Delta_s,\delta_p,\delta_q) \in \mathcal{C}.
 \end{split}
-\end{equation*}
+\end{equation}
 Finally, from the definition of $\mathcal{C}$ we obtain:
-\begin{equation*}
+\begin{equation}
 (\Delta_s,\delta_p,\delta_q) \in \mathcal{C} \Rightarrow \parallel w-w_0
 \parallel \ < R_0,
-\end{equation*}
+\end{equation}
 \end{proof}
 
 \subsection{Convex Bound For Local Condition}
@@ -613,20 +511,20 @@ If $\mathcal{G}$ is the set of triplets $(\Delta_s^i, \delta_p^i, \delta_q^i)$
 ||B_0^{-1}\delta|| &+ (||w_0||+R_0)(||B_0^{-1}L||+||B_0^{-1}M||) \\ & \leq  R_0,
 \end{split}
 \end{equation}
-such that
- \begin{equation*}
-||B_0^{-1}\Delta|| < 1
-\end{equation*}
- (where $||A||$ is the operator norm of the matrix $A$,) then $\mathcal{G}\subseteq \mathcal{C}$ and $\mathcal{G}$ is convex.
+such that $||B_0^{-1}\Delta|| < 1$
+ (where $||A||$ is the operator norm of the matrix $A$). Then $\mathcal{G}\subseteq \mathcal{C}$ and $\mathcal{G}$ is convex.
 \end{lemma}
 The proof of lemma \ref{convexBound} is given in Appendix A.
 
 \section{Method}
 In the following, we present two frameworks for LDA model monitoring that use
-the bound in Eq. \ref{eq:convexBound}. In both frameworks, every node runs the same
+the bound in Eq. \ref{eq:convexBound}. 
+In both frameworks, 
+we define a \textit{coordinator}, whose role is to monitor the violation alerts from the nodes and aggregate the data from all the nodes when it happens. The coordinator recomputes the model after data aggregation and sends the new covariance matrix and the norm of the new model to the nodes (in privacy preserving mode, the coordinator is a trusted party).
+In both frameworks every node runs the same
 update algorithm as detailed in Alg. \ref{NodeUpdate}.
 The frameworks differ in their synchronization policy. %violation recovery policy.
-The first,Distributed LDA Monitoring (DLDA), will synchronize in a round
+The first, Distributed LDA Monitoring (DLDA), will synchronize in a round
 in which at least one node has reported a violation as detailed in Alg.
 \ref{DLDA}).
 The second, Probabilistic Distributed LDA Monitoring (PDLDA), will synchronize in
@@ -681,12 +579,12 @@ DLDA triggers synchronization when a single node reports violation.
 Our empirical evaluation with a large number of nodes showed that such strict
 policy causes synchronization when the global model is still valid. The likely
 reason for this phenomenon is that theoretical bound is not tight enough.
-To resolve this problem we suggest to relax the synchronization policy of
-the system and synchronize when a certain portion of nodes report violation.
-Next, we derive a threshold on the number of nodes with violation that indicates
-that the change in the global model is higher than the permitted level.
+To resolve this problem we suggest relaxing the synchronization policy of
+the system and synchronizing when a certain portion of nodes report a violation.
+Next, we derive a threshold on the number of nodes with violations; this threshold indicates
+that the change in the global model is greater than the permitted level.
 To compensate for relaxing the threshold on the number of violated nodes
-(from 1), we lower the threshold on the model change $\|w-w_0\| \geq R_0$
+(from 1), we lower it on the model change: $\|w-w_0\| \geq R_0$
 to $u<R_0$.
 
 Let $U\in\{0,1\}$ be an indicator variable, such that $U=1$,
@@ -703,10 +601,10 @@ Let $V$ be the random variable denoting the number of local violations
 V := \sum_{i=1}^k v_i.
 \end{equation*}
 
-We denote the minimal number of violations that causes a synchronization
-as a violation threshold $t$ and it is quantified by
+We denote the minimal number of violations that cause a synchronization
+as a violation threshold $t$, and it is quantified by
 $t:=k*P_{FP}+z$ for some integer $z$.
-We would like to derive a condition that for a given $0 < \epsilon < 0.5$
+We would like to derive a condition that, for a given $0 < \epsilon < 0.5$,
 guarantees that
 $P(V>t|U=0) < \epsilon$.
 \\From the Chernoff bound it follows that
@@ -718,7 +616,7 @@ $P(V>t|U=0) < \epsilon$.
 \end{alignat*}
 For $z^*:=\sqrt{2kP_{FP}(P_{FP}-1)\log(\epsilon)}$ the condition is satisfied.
 Consequently, for $t^*:=k*P_{FP}+z^*$,  $$P(V > t^*|U=0) <
-\epsilon$$
+\epsilon$.
 We found a threshold $t^*$ on the number of nodes with violation, such that if $V > t^*$,  then
 $\|w-w_0\| \geq u$ with high probability, and thus requires synchronization.
 
@@ -741,13 +639,11 @@ $\|w-w_0\| \geq u$ with high probability, and thus requires synchronization.
 \end{figure}
 We evaluated the performance of the proposed monitoring algorithms,
 DLDA and PDLDA, on synthetic and real
-data. For each dataset we simulated a distributed data stream by partitioning the data between the nodes and streaming it one sample in a round. We defined a coordinator, whose role is to monitor the violation alerts from the nodes and aggregate the data from all the nodes when it happens. The coordinator recomputes the model after data aggregation and sends the new covariance matrix and the norm of the new model to the nodes (in privacy preserving mode, the coordinator is a trusted party).
-
-%To analyse the performance of the methods, we counted the number of synchronizations and recorded the deviation between the true and the monitored models.
+data. For each dataset we simulated a distributed data stream by partitioning the data between the nodes and streaming it one sample in a round. 
 
 \subsection{Synthetic Data Experiments}
-We use a synthetic data, in which all model assumptions hold, to
-exemplify the communication efficiency of our method (Section \ref{sec:com_eff}) and the ability to detect a concept drift before the error occurs (Section \ref{sec:earlydetection}). We then (Section \ref{sec:paramanal}) analyse the communication efficiency of our method as a function of algorithm parameters.
+We use synthetic data, in which all model assumptions hold, to
+exemplify the communication efficiency of our method (Section \ref{sec:com_eff}) and the ability to detect a concept drift before the error occurs (Section \ref{sec:earlydetection}). We then (Section \ref{sec:paramanal}) analyze the communication efficiency of our method as a function of algorithm parameters.
 
 \subsubsection{Communication Efficiency}\label{sec:com_eff}
 We compare DLDA to the T-periodic algorithm, denoted
@@ -755,7 +651,7 @@ PER(P), which is a simple sampling algorithm that sends updates
 every P rounds.
 Our main performance metric is communication, measured
 in \textbf{normalized messages} -- the average number of messages sent per
-round by each node. PER can achieve an arbitrarily low communication at the price of errors. Periodic synchronization can miss the point of change in the data, hence it cannot guarantee to keep the model drift under a fixed threshold, while DLDA can.  DLDA has additional intrinsic advantages over PER: 1) DLDA can be instantly calibrated to fit a given drift threshold, while for PER the interval between synchronizations could only be determined empirically, which is slower. 2) Contrarily to PER, DLDA does not require adaptation period when the rate of the concept drift changes. 3) For a sudden concept drift, DLDA's output reacts immediately --- the algorithm's \textit{latency} is 0 --- while for PER the latency might be up to the period length.
+round by each node. PER can achieve arbitrarily low communication at the cost of errors. Periodic synchronization can miss the point of change in the data; hence it cannot guarantee to maintain the model drift under a fixed threshold, in contrast to DLDA.  DLDA has additional intrinsic advantages over PER: 1) DLDA can be instantly calibrated to fit a given drift threshold, while for PER the interval between synchronizations could only be determined empirically, which is slower. 2) Contrary to PER, DLDA does not require an adaptation period when the rate of the concept drift changes. 3) For a sudden concept drift, DLDA adapts immediately --- the algorithm's \textit{latency} is 0 --- while for PER the latency might be up to the period length.
 %1) For a given allowed error rate, DLDA can be immediately calibrated not to exceed it while for PER the right period has to be found empirically.
 %2) If the rate that the date evolves changes, PER won't adapt its period size,
 %while DLDA adapts immediately.
@@ -766,13 +662,13 @@ DLDA achieves communication of 0.01 messages per node per round, and
 the model drift is always below the given threshold.
 Conversely, the equivalent PER(100) algorithm doesn't maintain the
 model drift below the threshold.
-Figure \ref{PERvsDLDAoverTime} shows that the periodic algorithm does not always  synchronize when the model drift exceeds a given threshold. Moreover, it  triggers redundant synchronization when there is no concept drift.
+Figure \ref{PERvsDLDAoverTime} shows that the periodic algorithm does not always  synchronize when the model drift exceeds a given threshold. Moreover, it  triggers redundant synchronizations when there is no concept drift.
 
 \subsubsection{Early Drift Detection}\label{sec:earlydetection}
-Consider a toy example (see Figure \ref{EarlyDetection}), in which a 2D data arrives from two classes (the positive class is represented by circles and the negative by asterisks), each one following a 2D arc in the opposite direction. The class is switched at each round. Both classes have a drift towards the separation boundary, which eventually crosses it, causing the classification error (at time $t_last$). We apply DLDA method to detect violation, and it detects it prior to the time  (with some margin) when the misclassification occurs (see the point of violation alert in figure \ref{EarlyDetection}). This example demonstrates an important advantage of our method over error-based concept drift methods, that detect drift only after the model becomes inaccurate or invalid.
+Consider a toy example (see Figure \ref{EarlyDetection}), in which 2D data arrives from two classes (the positive class is represented by circles and the negative by asterisks), each one following a 2D arc in the opposite direction. The class is switched at each round. Both classes exhibit a drift towards the separation boundary, which eventually crosses it, causing the classification error (at time $t_{last}$). We apply the DLDA method to detect violation, and it detects it prior to the time  (with some margin) when the misclassification occurs (see the point of violation alert in Figure \ref{EarlyDetection}). This example demonstrates an important advantage of our method over error-based concept drift methods, which detect drift only after the model becomes inaccurate or invalid.
 
-\subsubsection{Parameter Analyses}\label{sec:paramanal}
-Next, we analyse the parameters of the DLDA algorithm.
+\subsubsection{Parameter Analysis}\label{sec:paramanal}
+Next, we analyze the parameters of the DLDA algorithm.
 
 \noindent\textbf{Drift Threshold:} Figure \ref{PERvsDLDAoverError} shows the communication requirements of the DLDA algorithm as a function of the model drift threshold, and the minimal communication required to match DLDA using the PER.	
 It can been seen that for both fixed and dynamic data, DLDA outperforms PER for
@@ -791,44 +687,44 @@ any given drift threshold.
 Figure \ref{Nodes} shows the communication volume as a function of the number of nodes $k$.
 We observe that communication increases slowly, reaching 0.25\% on the fixed
 data and 0.6\% on the dynamic data distributed across 25 nodes.
-	\begin{figure}[h]
-	\centering
-	\includegraphics[width=60mm, height=4cm]{CommunicationOfFixedVsDrift/Nodes.png}
-	\caption{Communication as a function of the number of nodes.}
-	\label{Nodes}
-	\end{figure}
+
+\begin{figure}[!htb]
+\minipage{0.49\textwidth}
+  \includegraphics[width=\linewidth]{CommunicationOfFixedVsDrift/Nodes.png}
+  \caption{Communication as a function of the number of nodes.}\label{Nodes}
+\endminipage\hfill
+\minipage{0.49\textwidth}
+  \includegraphics[width=\linewidth]{CommunicationOfFixedVsDrift/WindowSize.png}
+  \caption{Communication as function of window size $W$}\label{WindowSize}
+\endminipage
+\end{figure}
 
 \noindent\textbf{Window Size:}
 Figure \ref{WindowSize} shows how communication decreases as a result
 of enlarging the window size $W$.  One can increase the window size to compensate for other factors in the system that increase the communication. One of those is
 noise (which is quantified in our context by the standard deviation of the
 data generating distribution).
- \begin{figure}
-	\centering
-	\includegraphics[width=60mm, height=4cm]{CommunicationOfFixedVsDrift/WindowSize.png}
-	\caption{Communication as function of window size $W$}
-	\label{WindowSize}
-	\end{figure}
+
 %\subsubsection{Noise}
 Figure \ref{Noise} shows normalized messages obtained for different
-noise magnitudes. The experiment shows that the drift grows with the noise, causing more synchronizations (more communication). This is result is not surprising, and the solution for it is increasing the window size.
+noise magnitudes. The experiment shows that the drift grows with the noise, causing more synchronizations (more communication). This result is not surprising, and the solution is to increase the window size.
 
-Another parameter that is directly related to the window size is the dimension of the data. The number of samples required for accurate estimation of the covariance matrix grows with the dimension. In our settings, the number of training samples is linked to the window size. When window size is fixed, communication grows linearly with the dimension (see Figure \ref{Dimension}).
-	
-\begin{figure}
-	\centering
-	\includegraphics[width=60mm, height=4cm]{CommunicationOfFixedVsDrift/Noise.png}
-	\caption{Communication as a function of the standard deviation of the
-	data generating distribution.}
-	\label{Noise}
-	\end{figure}
+Another parameter directly related to the window size is the dimension of the data. The number of samples required for accurate estimation of the covariance matrix grows with the dimension. In our settings, the number of training samples is linked to the window size. When window size is fixed, communication grows linearly with the dimension (see Figure \ref{Dimension}).
 
-\begin{figure}
-	\centering
-	\includegraphics[width=60mm, height=4cm]{CommunicationOfFixedVsDrift/Dimension.png}
-	\caption{Communication as a function of input dimension}
-	\label{Dimension}
-	\end{figure}
+
+
+\begin{figure}[!htb]
+\minipage{0.49\textwidth}
+  \includegraphics[width=\linewidth]{CommunicationOfFixedVsDrift/Noise.png}
+  \caption{Communication as a function of the standard deviation of the
+	data generating distribution}\label{Noise}
+\endminipage\hfill
+\minipage{0.49\textwidth}
+  \includegraphics[width=\linewidth]{CommunicationOfFixedVsDrift/Dimension.png}
+  \caption{Communication as a function of input dimension}\label{Dimension}
+\endminipage
+\end{figure}
+
 
 \begin{figure}
 	\centering
@@ -841,28 +737,28 @@ Another parameter that is directly related to the window size is the dimension o
 	\end{figure}
 \subsection{Real Data Experiments}
 In this section we test the algorithm on three real data sets. The first
-(newsgroups collection) is too small to use the probabilistic approach, thus we use this set only for DLDA test.
+(USENET) is too small to test the probabilistic approach; thus we use this set only for the DLDA test.
 The second (Power Consumption Monitoring) is a medium size dataset (it
 is distributed over 36 nodes) and we test both DLDA and PDLDA on it.
 The third (Gas Sensor Time Series Monitoring) is a big set(it is distributed over
-100 nodes). DLDA synchronization policy is too strict for a large number of nodes, hence we use this set only for PDLDA test.
+100 nodes). The DLDA synchronization policy is too strict for a large number of nodes; hence we use this set only for the PDLDA test.
 
 \subsubsection{Message Preference Monitoring --- Usenet}
 The USENET dataset~\cite{usenet} is a text dataset that simulates a stream of messages from three newsgroups (medicine, space, baseball); the messages are presented sequentially to a user, who then labels them as interesting or junk, according to personal interest. Attribute values are binary, indicating the presence or absence of the 128 informative words. The drift occurs from a change in the user's
 preference (from space to baseball). Figure \ref{usenet} shows the results of
-DLDA algorithm with $W=450$ . The first 450 rounds over the data correspond to
+the DLDA algorithm with $W=450$ . The first 450 rounds over the data correspond to
 the initialization phase and are omitted. During the next 50 rounds the DLDA error
 (the value is calculated using the left side of the inequality in Eq.
 \ref{eq:convexBound}) increases due to noise in the data; there is
 no concept drift. From round 500 to 600 the DLDA error is stable,
 and again is due only to the noise. In round 600 there is a concept
 drift.
-From this point both the DLDA and the true error increase until the
+From this point both the DLDA error and the true error increase until the
 synchronization in round 698.
 \subsubsection{Power Consumption Monitoring}
 The Power Consumption dataset ~\cite{powerSupply} contains the hourly power supply of an
-Italian electric company as recorded from two sources: power, supplied
-by the main grid and power, transformed from other grids.
+Italian electric company as recorded from two sources: power supplied
+by the main grid and power transformed from other grids.
 This stream contains three-year power supply records
 from 1995 to 1998, and our learning task is to predict which hour (1 out of 24 hours) the current power supply belongs to. The concept drift in this stream
 is mainly caused by such factors as season, weather, time of day,
@@ -871,32 +767,29 @@ We demonstrate the algorithms on the following binary classification problem:
 given a power supply measurement, decide whether it corresponds to night or day.
 This dataset is an example of gradual concept drift (seasons do not
 change abruptly).
-Figure \ref{PowerSupplyFigures} depicts the results of DLDA
+Figure \ref{PowerSupplyFigures} depicts the results of the DLDA
 and PDLDA algorithms. For a small number of nodes, $k=4$, and for large
-window size, $W=5000$, DLDA obtains only 0.003 normalized messages.
-For a more distributed system, k=36, and a smaller window
-size, $W=600$, DLDA obtains 0.09 normalized messages. For PDLDA with
+window size, $W=5000$, DLDA requires only 0.003 normalized messages.
+For a more distributed system, $k=36$, and a smaller window
+size, $W=600$, DLDA requires 0.09 normalized messages. For PDLDA with
 $k=36$ and $W=600$ and a violation threshold (VT) of 50\%, PDLDA
-obtains 0.02 normalized messages, much better than DLDA on the same setting.
+requires 0.02 normalized messages, much better than DLDA in the same setting.
 
 \begin{figure}[ht!]
     \centering
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth,height=3cm]{PowerSupply/4nodes.png}
         \caption{k=4, W=5000, VT=0}
-        \label{fig:gull}
     \end{subfigure}
 
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth,height=3cm]{PowerSupply/36nodes.png}
         \caption{k=36 Nodes, W=600, VT=0}
-        \label{fig:tiger}
     \end{subfigure}
 
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth,height=3cm]{PowerSupply/36nodesProb.png}
         \caption{k=36 Nodes, W=600, VT=18}
-        \label{fig:mouse}
     \end{subfigure}
     \caption{The top and the center figures show the DLDA algorithm on the Power Supply data set for a small (top) and large (center) number of nodes. The blue line represents the value of the local bound expression, corresponding to the node with the maximum value. The green line shows the model drift (normalized by the threshold); the model is computed after the data was aggregated from all nodes. The bottom plot shows the results of the PDLDA on the same dataset. The blue line in the bottom plot represents the fraction of violated nodes.}\label{PowerSupplyFigures}
 \end{figure}
@@ -917,61 +810,58 @@ by an array of 16 chemical sensors in a lab, recording at a sampling
 rate of 100Hz for 24 hours, resulting in 8378504 data points for each sensor.
 During the first 12 hours the task is to detect the presence of carbon monoxide
 (CO) in a mixture of chemicals, and from the 13th hour the task is to detect the presence of methane, which corresponds to an abrupt concept drift.
-Figure \ref{BigGasOverTime} demonstrate the results of PDLDA algorithm.
-First, we can observe that the fraction of the violated nodes (shown in blue) correlates with the true error (shown in green). Second, it shows two patterns of behaviour which are separated by an abrupt switch in the data  (marked by the vertical red line). Before the switch,  the synchronization occurs every 150 rounds, and after the switch, it goes down to every 50 rounds. There is a transition period for about 1000 rounds, that follows the point of the data switch. In this interval, the sliding window mixes the old (before switch) data and the new (after the switch) data, but once the window aggregates enough data, the algorithms stabilises and reduces the communication requirements.   This experiment shows that PDLDA algorithm detects the abrupt change in the data and adapts to the new conditions after a short period of time.
+Figure \ref{BigGasOverTime} demonstrates the results of PDLDA algorithm.
+First, we can observe that the fraction of violated nodes (shown in blue) correlates with the true error (shown in green). Second, we can see two patterns of behavior, which are separated by an abrupt switch in the data  (marked by the vertical red line). Before the switch,  the synchronization occurs every 150 rounds, and after the switch, it goes down to every 50 rounds. There is a transition period of about 1000 rounds that follows the point of the data switch. In this interval, the sliding window mixes the old (before switch) data and the new (after the switch) data, but once the window aggregates enough data, the algorithms stabilizes and reduces the communication requirements.   This experiment shows that the PDLDA algorithm detects the abrupt change in the data and adapts to the new conditions after a short period of time.
 \section*{Conclusions}
-We introduced a first communication-efficient monitoring algorithm for a linear classifier model that monitors the
-models itself, but doesn't need the knowledge of the global model at local nodes.
+We introduced the first communication-efficient monitoring algorithm for a linear classifier model that monitors the
+models itself, but does not require knowledge of the global model at the local nodes.
 As long as all nodes meet their local condition, the
 global model is guaranteed to be valid. Our algorithm has important benefits:
 \begin{itemize}
-  \item Our method works with the distributed data in communication efficient way.
-  \item Monitoring the model as oppose to errors allows for early detection of the drift before the violation of the model occurs.
+  \item Our method works with distributed data in a communication efficient way.
+  \item Monitoring the model as opposed to monitoring the errors allows for early detection of the drift before the violation of the model occurs.
   \item Our algorithm is privacy aware in the sense that it preserves privacy of the data at each node from other nodes.
 \end{itemize}
 
-We evaluated the theoretical scheme -- DLDA  and its probabilistic version --PDLDA, on three real data sets.
+We evaluated the theoretical scheme -- DLDA,  and its probabilistic version -- PDLDA, on three real data sets.
 For a small number of nodes we used DLDA with its theoretical guarantee, and for a greater number of nodes we used
-PDLDA and we showed that the proposed scheme outperforms PER: it maintains a smaller Euclidean distance between
-the last computed model to the current true model with a lower volume of communication.
+PDLDA. We showed that the proposed scheme outperforms PER: it maintains a smaller Euclidean distance between
+the last computed model and the current true model with a lower volume of communication.
 
 This work is the first step in designing communication-efficient algorithms
-with theoretical guarantees for monitoring classification models over dynamic
-streaming distributed data. Since we link the monitoring algorithm with the
+with theoretical guarantees for monitoring classification models over dynamic distributed data
+streams. 
+Since we link the monitoring algorithm with the
 hypothesis class and the learning algorithm, each classifier type should be
 studied in depth.
-Alternatively, one can think of developing a monitoring method for a given
+Alternatively, a monitoring method could be developed for a given
 hypothesis class, independent of the training algorithm.
 One of the future directions is to extend the proposed framework to
-ensemble of linear classifiers and neural networks, including deep learning network.
-An orthogonal, but important research direction is to analyse the
+ensembles of linear classifiers and neural networks, including deep learning networks.
+An orthogonal, but important research direction is to analyze the
 privacy aspect of the proposed algorithm and try to adjust the proposed
-scheme in order to provide a better privacy of the local data.
+scheme in order to provide better privacy of the local data.
 
-%
-% The following two commands are all you need in the
-% initial runs of your .tex file to
-% produce the bibliography for the citations in your paper.
-\bibliographystyle{abbrv}
-\bibliography{bib}  % sigproc.bib is the name of the Bibliography in this case
-% You must have a proper ".bib" file
-%  and remember to run:
-% latex bibtex latex latex
-% to resolve all references
-%
-% ACM needs 'a single self-contained file'!
-%
+
+\begin{acknowledgements}
+Thanks to Moshe Gabel for the help in kicking off this research.
+\end{acknowledgements}
+
+% BibTeX users please use one of
+\bibliographystyle{spr-chicago}      % Chicago style, author-year citations
+\bibliography{bib}   % name your BibTeX data base
+\nocite{*}
 
 \appendix
 \section{Appendix} \label{AppendixA}
 To find a convex subset C satisfying the condition of Eq. \ref{convex},
-We first define the operator norm:
+we first define the operator norm:
 \begin{definition}
 Let $A$ be a matrix. Its operator norm, or
 spectral norm, hereafter just norm, is defined as:
-\begin{equation*}
+\begin{equation}
 ||A|| = \sup_{x \neq 0}\frac{||Ax||}{||x||}.
-\end{equation*}
+\end{equation}
 \end{definition}
 
 \begin{lemma} \label{lemma:newman}
@@ -1086,8 +976,8 @@ From the definition of operator norm, we can rewrite the function as:
 & = && ||B_0^{-1}(\max_{||u||=1}{\{||u^T \delta_p||^2\}} +
 \max_{||u||=1}{\{||u^T \delta_q||^2\}})||.
 \end{alignat*}
-We observe that max over a finite number of convex functions is also a convex
-function, multiplication by a matrix and the norm keeps it convex.
+\\We observe that max over a finite number of convex functions is also a convex
+function, and the multiplication by a matrix and the norm that performed afterwards keeps it convex.
 This concludes our proof.
 \end{proof}
 
@@ -1095,5 +985,7 @@ This concludes our proof.
 From lemmas \ref{delta}, \ref{L} and \ref{M} we can conclude that $\mathcal{G}$
 is convex.
 \end{corollary}
+
 \end{document}
+% end of file template.tex
 

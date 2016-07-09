@@ -436,27 +436,52 @@ misclassifications (Section \ref{sec:earlydetection}). We then (Section \ref{sec
 We compare DLDA to the T-periodic algorithm, denoted
 PER(P), which is a simple sampling algorithm that sends updates
 every P rounds.
-Our main performance metric is communication, measured in \textit{normalized messages} (the average number of messages sent per round by each node). PER can achieve arbitrarily low communication at the cost of larger model drift. Periodic synchronization can miss the point of change in the data; hence it cannot guarantee to maintain the model drift under a fixed threshold, in contrast to DLDA.  DLDA has additional intrinsic advantages over PER: 1) DLDA can be instantly calibrated to fit a given drift threshold, while for PER the interval between synchronizations can only be determined empirically, which is slower. 2) Contrary to PER, DLDA does not require an adaptation period when the rate of the concept drift changes. 3) For a sudden concept drift, DLDA adapts immediately --- the algorithm's \textit{latency} is 0 --- while for PER the latency might be up to the period length.
+Our main performance metric is communication, measured in \textit{normalized messages} (the average number of messages sent per round by each node). 
+PER can achieve arbitrarily low communication at the cost of larger model drift. 
+Periodic synchronization can miss the point of change in the data; 
+hence it cannot guarantee to maintain the model drift under a fixed threshold, in contrast to DLDA.  
+DLDA has additional intrinsic advantages over PER: 
+1) DLDA can be instantly calibrated to fit a given drift threshold, while for PER the 
+interval between synchronizations can only be determined empirically. 
+2) The rate that the data evolves might change. 
+While DLDA adapts to the new changing rate, PER suffers from its fixed period
+that has to be suboptimal to the new one.
+3) For a sudden change in the data, DLDA adapts immediately --- the algorithm's
+\textit{latency} is 0 --- while for PER the latency might be up to the period length.
 %1) For a given allowed error rate, DLDA can be immediately calibrated not to exceed it while for PER the right period has to be found empirically.
 %2) If the rate that the date evolves changes, PER won't adapt its period size,
 %while DLDA adapts immediately.
 	
 Figure \ref{PERvsDLDAoverTime} shows the behavior of the DLDA monitoring
-algorithm over a synthetic dataset with 3 concept drifts.
+algorithm over a synthetic dataset with 3 points in time that the data changes.
 DLDA achieves communication of 0.01 messages per node per round, and
 the model error $(1 - \frac{<w_0,w>}{||w||||w_0||})$ and thus the model drift  is always below the given threshold.
 Conversely, the equivalent PER(100) algorithm doesn't maintain the
 model error below the threshold (red dashed line).
-Figure \ref{PERvsDLDAoverTime} shows that the periodic algorithm does not always  synchronize when the model drift exceeds a given threshold. Moreover, it  triggers redundant synchronizations when there is no concept drift.
+Figure \ref{PERvsDLDAoverTime} shows that the periodic algorithm does not always 
+synchronize when the model drift exceeds a given threshold. 
+Moreover, it triggers redundant synchronizations when there is no change in the data.
 
 \subsubsection{Early Drift Detection}\label{sec:earlydetection}
 \begin{figure*}[ht]
 	\centering
 	\includegraphics[width=120mm, height=5cm]{EarlyDetection.png}
-	\caption{A toy example for early concept drift detection. The positive class samples are shown as pluses and the negative class samples are shown as minuses. The changes in both classes follow a 2D arc in opposite directions. $t_0, t_1$ are the first samples from the two classes; $t_{last-1}, t_{last}$ are the last (chronologically) samples from the two classes. The first violation is reported at the sample with an arrow on it, which happens prior to the first misclassification (in the  last sample $t_{last}$) that ended the experiment.}
+	\caption{A toy example for early detection of a change in the data. The
+	positive class samples are shown as pluses and the negative class samples are shown as minuses. The changes in both classes follow a 2D arc in opposite directions. $t_0, t_1$ are the first samples from the two classes; $t_{last-1}, t_{last}$ are the last (chronologically) samples from the two classes. The first violation is reported at the sample with an arrow on it, which happens prior to the first misclassification (in the  last sample $t_{last}$) that ended the experiment.}
 	\label{EarlyDetection}
 \end{figure*}
-Consider a toy example (see Figure \ref{EarlyDetection}), in which 2D data arrives from two classes (the positive class samples are shown as pluses and the negative class samples are shown as minuses), each one following a 2D arc in the opposite direction. The class is switched at each round. Both classes exhibit a concept drift towards the separation boundary, which eventually crosses it, causing a misclassification (at time $t_{last}$). We apply the DLDA method to detect the concept drift, and it detects it prior to the time (with some margin) when the missclassification occurs (see the point of the first violation alert in Figure \ref{EarlyDetection}). This example demonstrates an important advantage of our method over misclassifications-based concept drift detection methods, which detect concept drift only after the model becomes inaccurate or invalid.
+Consider a toy example (see Figure \ref{EarlyDetection}), 
+in which 2D data arrives from two classes (the positive class samples are shown as pluses and 
+the negative class samples are shown as minuses), each one following a 2D arc in the opposite 
+direction. 
+The class is switched at each round. 
+Both classes move towards the separation boundary, 
+and eventually cross it, causing a misclassification (at time $t_{last}$). 
+We apply the DLDA method to detect the chnage in the data, and it detects it
+prior to the time (with some margin) when the missclassification occurs 
+(see the point of the first violation alert in Figure \ref{EarlyDetection}). 
+This example demonstrates an important advantage of our method over misclassifications-based 
+methods, which detect the chnage in the data only after the model becomes inaccurate or invalid.
 
 \subsubsection{Parameter Analysis}\label{sec:paramanal}
 Next, we analyze the parameters of the DLDA algorithm.
@@ -467,7 +492,7 @@ It can been seen that for both fixed and dynamic data, DLDA outperforms PER for
 any given model drift threshold.
  \begin{figure*}[ht]
 	\centering
-	\includegraphicswidth=120mm, height=5cm]{PER/onlyDrift.png}
+	\includegraphics[width=120mm, height=5cm]{PER/onlyDrift.png}
 	\caption{Communication as the function of model drift for DLDA and PER. The
 	periodic algorithm is tuned to achieve the same max model drift as DLDA
 	for each model drift threshold.}
@@ -487,19 +512,18 @@ data and 0.6\% on the dynamic data distributed across 25 nodes.
     \centering
   \includegraphics[width=\linewidth]{CommunicationOfFixedVsDrift/Nodes.png}
   \caption{Communication as a function of the number of nodes for fixed (blue)
-  and concept drift including (green dashed line) datasets}\label{Nodes}
+  and changing (green dashed line) datasets}\label{Nodes}
   \endminipage\hfill
 \minipage{0.4\textwidth}
     \centering
   \includegraphics[width=\linewidth]{CommunicationOfFixedVsDrift/WindowSize.png}
-  \caption{Communication as function of window size $W$ for fixed (blue) and
-  concept drift including (green  dashed line) datasets}\label{WindowSize}
+  \caption{Communication as function of window size }\label{WindowSize}
   \endminipage\hfill
 \minipage{0.4\textwidth}
     \centering
   \includegraphics[width=\linewidth]{CommunicationOfFixedVsDrift/Dimension.png}
   \caption{Communication as a function of input dimension for fixed (blue) and
-  concept drift including (green  dashed line) datasets}\label{Dimension}
+  changing (green  dashed line) datasets}\label{Dimension}
 \endminipage
 \end{figure}
 
@@ -523,7 +547,7 @@ Another parameter directly related to the window size is the dimension of the da
 	%\includegraphics[width=\textwidth]{Usenet/DriftDetected.png}
 	\caption{Comparison between maximal (over nodes) DLDA model drift (blue)
 	and the true global model drift (green dashed line) for $k=2$, $W=450$.
-	It can be seen that DLDA responds to the concept drift that occurs
+	It can be seen that DLDA responds to the change in the data that occurs
 	after 600 rounds (red dotted vertical line) and causes a synchronization in round 698 (blue dashed vertical line).}
 	\label{usenet}
 	\end{figure*}
@@ -536,11 +560,18 @@ The third (Gas Sensor Time Series Monitoring) is a big set(it is distributed ove
 100 nodes). The DLDA synchronization policy is too strict for a large number of nodes; hence we use this set only for the PDLDA test.
 
 \subsubsection{Message Preference Monitoring --- Usenet}
-The USENET dataset (~\citealt{usenet}) is a text dataset that simulates a stream of messages from three newsgroups (medicine, space, baseball); the messages are presented sequentially to a user, who then labels them as interesting or junk, according to personal interest. Attribute values are binary, indicating the presence or absence of the 128 informative words. The concept drift occurs from a change in the user's preference (from space to baseball). 
+The USENET dataset (~\citealt{usenet}) is a text dataset that simulates a stream of messages 
+from three newsgroups (medicine, space, baseball); 
+the messages are presented sequentially to a user, who then labels them as interesting or junk, 
+according to personal interest. 
+Attribute values are binary, indicating the presence or absence of the 128 informative words. 
+The change in the data occurs from a change in the user's preference (from space to baseball). 
 Figure \ref{usenet} shows the results of the DLDA algorithm with $W=450$ . The first 450 rounds over the data correspond to
-the initialization phase and are omitted. During the next 50 rounds the DLDA model drift (the value is calculated using the left side of the inequality in Eq. \ref{eq:convexBound}) increases due to noise in the data; there is
-no concept drift. From round 500 to 600 the DLDA model drift is stable,
-and again is due only to the noise. In round 600 there is a concept
+the initialization phase and are omitted. During the next 50 rounds the DLDA model drift 
+(the value is calculated using the left side of the inequality in Eq. \ref{eq:convexBound}) 
+increases due to noise in the data; there is no change in the user's
+preferences.
+From round 500 to 600 the DLDA model drift is stable, and again is due only to the noise. In round 600 there is a concept
 drift.
 From this point both the DLDA model drift and the true model drift increase until the synchronization in round 698.
 \subsubsection{Power Consumption Monitoring}
@@ -548,12 +579,13 @@ The Power Consumption dataset  (~\citealt{powerSupply}) contains the hourly powe
 Italian electric company as recorded from two sources: power supplied
 by the main grid and power transformed from other grids.
 This stream contains three-year power supply records
-from 1995 to 1998, and our learning task is to predict which hour (1 out of 24 hours) the current power supply belongs to. The concept drift in this stream
-is mainly caused by such factors as season, weather, time of day,
+from 1995 to 1998, and our learning task is to predict which hour (1 out of 24 hours) 
+the current power supply belongs to. 
+Thchange in the dataft in this stream is mainly caused by such factors as season, weather, time of day,
 and the differences between working days and weekend.
 We demonstrate the algorithms on the following binary classification problem:
 given a power supply measurement, decide whether it corresponds to night or day.
-This dataset is an example of gradual concept drift (seasons do not
+This dataset is an example of gradual change in the data (seasons do not
 change abruptly).
 Figure \ref{PowerSupplyFigures} depicts the results of the DLDA
 and PDLDA algorithms. For a small number of nodes, $k=4$, and for large
@@ -583,7 +615,7 @@ requires 0.02 normalized messages, much better than DLDA in the same setting.
 \end{figure}
 
 \subsubsection{Gas Sensor Time Series Monitoring}
-\begin{figure*}[h]
+\begin{figure*}[ht]
 \centering
 \includegraphics[width=\textwidth]{BigGas/overTime100k.png}
 \caption{Demonstration of PDLDA on the Gas Sensor dataset.
@@ -597,7 +629,8 @@ Data in this experiment (~\citealt{bigGas}) consists of measurements collected
 by an array of 16 chemical sensors in a lab, recording at a sampling
 rate of 100Hz for 24 hours, resulting in 8378504 data points for each sensor.
 During the first 12 hours the task is to detect the presence of carbon monoxide
-(CO) in a mixture of chemicals, and from the 13th hour the task is to detect the presence of methane, which corresponds to an abrupt concept drift.
+(CO) in a mixture of chemicals, and from the 13th hour the task is to detect the presence of methane, 
+which corresponds to an abrupt change in the data.
 Figure \ref{BigGasOverTime} demonstrates the results of PDLDA algorithm.
 First, we can observe that the fraction of violated nodes (shown in blue) correlates with the true model drift (shown in green). Second, we can see two patterns of behavior, which are separated by an abrupt switch in the data  (marked by the vertical red line). Before the switch,  the synchronization occurs every 150 rounds, and after the switch, it goes down to every 50 rounds. There is a transition period of about 1000 rounds that follows the point of the data switch. In this interval, the sliding window mixes the old (before switch) data and the new (after the switch) data, but once the window aggregates enough data, the algorithms stabilizes and reduces the communication requirements.   This experiment shows that the PDLDA algorithm detects the abrupt change in the data and adapts to the new conditions after a short period of time.
 \section*{Conclusions}
@@ -607,7 +640,9 @@ As long as all nodes meet their local condition, the
 global model is guaranteed to be valid. Our algorithm has important benefits:
 \begin{itemize}
   \item Our method works with distributed data in a communication efficient way.
-  \item Monitoring the model as opposed to monitoring the misclassifications allows for early detection of the concept drift misclassification occurs.
+  \item Monitoring the model as opposed to monitoring the misclassifications
+  allows for early detection of the changing even before misclassification
+  occurs.
 \end{itemize}
 
 We evaluated the theoretical scheme -- DLDA,  and its probabilistic version -- PDLDA, on three real data sets.
